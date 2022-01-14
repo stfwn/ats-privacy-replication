@@ -94,7 +94,7 @@ def construct_model(model, num_classes=10, seed=None, num_channels=3, modelkey=N
     elif model == 'ResNet20-10':
         model = ResNet(torchvision.models.resnet.BasicBlock, [3, 3, 3], num_classes=num_classes, num_channels=num_channels, base_width=16 * 10)
     elif model == 'ResNet20-4':
-        model = ResNet(torchvision.models.resnet.BasicBlock, [3, 3, 3], num_classes=num_classes, num_channels=num_channels, base_width=16 * 4)
+        model = ResNet(torchvision.models.resnet.BasicBlock, [3, 3, 3], num_classes=num_classes, num_channels=num_channels, base_width=16 * 4) # STFWN: this is used
     elif model == 'ResNet20-4-unpooled':
         model = ResNet(torchvision.models.resnet.BasicBlock, [3, 3, 3], num_classes=num_classes, num_channels=num_channels, base_width=16 * 4,
                        pool='max')

@@ -1,0 +1,346 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/stefan/university/fact-ai/mscai-fact-ai/original/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/p5.9.20210905.0/
+Abstract	README.md	/^### Abstract$/;"	S	chapter:Privacy-preserving Collaborative Learning with Automatic Transformation Search
+Acknowledgement	README.md	/^# Acknowledgement $/;"	c
+AdamStrategy	inversefed/optimization_strategy.py	/^class AdamStrategy(Strategy):$/;"	c
+BENCHMARK	inversefed/consts.py	/^BENCHMARK = True$/;"	v
+CIFAR10	cifar.py	/^class CIFAR10(VisionDataset):$/;"	c
+CIFAR100	cifar.py	/^class CIFAR100(CIFAR10):$/;"	c
+Classification	inversefed/data/loss.py	/^class Classification(Loss):$/;"	c
+Code	README.md	/^## Code$/;"	s	chapter:Privacy-preserving Collaborative Learning with Automatic Transformation Search
+ConservativeStrategy	inversefed/optimization_strategy.py	/^class ConservativeStrategy(Strategy):$/;"	c
+ConvNet	inversefed/nn/models.py	/^class ConvNet(torch.nn.Module):$/;"	c
+Cutout	inversefed/utils.py	/^class Cutout(object):$/;"	c
+DEBUG	inversefed/nn/modules.py	/^DEBUG = False  # Emit warning messages when patching. Use this to bootstrap new architectures.$/;"	v
+DEFAULT_CONFIG	inversefed/reconstruction_algorithms.py	/^DEFAULT_CONFIG = dict(signed=False,$/;"	v
+Data Processing	inversefed/data/README.md	/^# Data Processing$/;"	c
+DatasetFromFolder	inversefed/data/datasets.py	/^class DatasetFromFolder(data.Dataset):$/;"	c
+F	benchmark/cifar100_attack.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+F	benchmark/cifar100_train.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+F	benchmark/comm.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+F	benchmark/search_transform_attack.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+F	create_tiny_dataset.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+F	inversefed/medianfilt.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+F	inversefed/nn/densenet.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+F	inversefed/nn/modules.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+F	inversefed/nn/revnet.py	/^import torch.nn.functional as F$/;"	I	nameref:module:torch.nn.functional
+FedAvgReconstructor	inversefed/reconstruction_algorithms.py	/^class FedAvgReconstructor(GradientReconstructor):$/;"	c
+GradientReconstructor	inversefed/reconstruction_algorithms.py	/^class GradientReconstructor():$/;"	c
+GradualWarmupScheduler	inversefed/training/scheduler.py	/^class GradualWarmupScheduler(_LRScheduler):$/;"	c
+InceptionScore	inversefed/metrics.py	/^class InceptionScore(torch.nn.Module):$/;"	c
+LabelSmoothing	inversefed/data/loss.py	/^class LabelSmoothing(nn.Module):$/;"	c
+LeNetZhu	inversefed/nn/models.py	/^class LeNetZhu(nn.Module):$/;"	c
+License	README.md	/^# License$/;"	c
+ListModule	inversefed/nn/revnet_utils.py	/^class ListModule(object):$/;"	c
+Loss	inversefed/data/loss.py	/^class Loss:$/;"	c
+MULTITHREAD_DATAPROCESSING	inversefed/consts.py	/^MULTITHREAD_DATAPROCESSING = 4$/;"	v
+MedianPool2d	inversefed/medianfilt.py	/^class MedianPool2d(nn.Module):$/;"	c
+MetaMonkey	inversefed/nn/modules.py	/^class MetaMonkey(torch.nn.Module):$/;"	c
+Models and modules are implemented here	inversefed/nn/README.md	/^# Models and modules are implemented here/;"	c
+NON_BLOCKING	inversefed/consts.py	/^NON_BLOCKING = False$/;"	v
+PIN_MEMORY	inversefed/consts.py	/^PIN_MEMORY = True$/;"	v
+PSNR	inversefed/data/loss.py	/^class PSNR(Loss):$/;"	c
+Privacy-preserving Collaborative Learning with Automatic Transformation Search	README.md	/^# Privacy-preserving Collaborative Learning with Automatic Transformation Search$/;"	c
+Quick Start	README.md	/^## Quick Start $/;"	s	chapter:Privacy-preserving Collaborative Learning with Automatic Transformation Search
+ResNet	inversefed/nn/models.py	/^class ResNet(torchvision.models.ResNet):$/;"	c
+Setup	README.md	/^## Setup$/;"	s	chapter:Privacy-preserving Collaborative Learning with Automatic Transformation Search
+Step1 Download Key Files	README.md	/^### Step1 Download Key Files $/;"	S	section:Privacy-preserving Collaborative Learning with Automatic Transformation Search""Quick Start
+Step2 Automatic Transformation Search	README.md	/^### Step2 Automatic Transformation Search$/;"	S	section:Privacy-preserving Collaborative Learning with Automatic Transformation Search""Quick Start
+Step3 Privacy-Perserving Evaluation	README.md	/^### Step3 Privacy-Perserving Evaluation$/;"	S	section:Privacy-preserving Collaborative Learning with Automatic Transformation Search""Quick Start
+Strategy	inversefed/optimization_strategy.py	/^class Strategy:$/;"	c
+SubPolicy	autoaugment.py	/^class SubPolicy(object):$/;"	c
+TV	inversefed/reconstruction_algorithms.py	/^from .metrics import total_variation as TV$/;"	x	nameref:unknown:total_variation
+Training routines are implemented here	inversefed/training/README.md	/^# Training routines are implemented here/;"	c
+Visualize Result	README.md	/^### Visualize Result$/;"	S	section:Privacy-preserving Collaborative Learning with Automatic Transformation Search""Quick Start
+_Bottleneck	inversefed/nn/densenet.py	/^class _Bottleneck(nn.Module):$/;"	c
+_DenseNet	inversefed/nn/densenet.py	/^class _DenseNet(nn.Module):$/;"	c
+_Transition	inversefed/nn/densenet.py	/^class _Transition(nn.Module):$/;"	c
+__all__	inversefed/__init__.py	/^__all__ = ['train', 'construct_dataloaders', 'construct_model', 'MetaMonkey',$/;"	v
+__all__	inversefed/data/__init__.py	/^__all__ = ['construct_dataloaders']$/;"	v
+__all__	inversefed/nn/__init__.py	/^__all__ = ['construct_model', 'MetaMonkey']$/;"	v
+__all__	inversefed/training/__init__.py	/^__all__ = ['train', 'train_with_defense']$/;"	v
+__call__	autoaugment.py	/^    def __call__(self, img):$/;"	m	class:SubPolicy
+__call__	benchmark/comm.py	/^    def __call__(self, img):$/;"	m	class:sub_transform
+__call__	inversefed/data/loss.py	/^    def __call__(self, reference, argmin):$/;"	m	class:Loss
+__call__	inversefed/data/loss.py	/^    def __call__(self, x=None, y=None):$/;"	m	class:Classification
+__call__	inversefed/data/loss.py	/^    def __call__(self, x=None, y=None):$/;"	m	class:PSNR
+__call__	inversefed/utils.py	/^    def __call__(self, img):$/;"	m	class:Cutout
+__getitem__	cifar.py	/^    def __getitem__(self, index):$/;"	m	class:CIFAR10
+__getitem__	inversefed/data/datasets.py	/^    def __getitem__(self, index):$/;"	m	class:DatasetFromFolder
+__getitem__	inversefed/nn/revnet_utils.py	/^    def __getitem__(self, i):$/;"	m	class:ListModule
+__init__	autoaugment.py	/^    def __init__(self, p1, operation1, magnitude_idx1, fillcolor=(0, 0, 0)):$/;"	m	class:SubPolicy
+__init__	benchmark/comm.py	/^    def __init__(self, policy_list):$/;"	m	class:sub_transform
+__init__	cifar.py	/^    def __init__(self, root, train=True, transform=None, target_transform=None,$/;"	m	class:CIFAR10
+__init__	inversefed/data/datasets.py	/^    def __init__(self, image_dir, replicate=1, input_transform=None, target_transform=None, RGB=/;"	m	class:DatasetFromFolder
+__init__	inversefed/data/loss.py	/^    def __init__(self):$/;"	m	class:Classification
+__init__	inversefed/data/loss.py	/^    def __init__(self):$/;"	m	class:Loss
+__init__	inversefed/data/loss.py	/^    def __init__(self):$/;"	m	class:PSNR
+__init__	inversefed/data/loss.py	/^    def __init__(self, size, smoothing=0.0):$/;"	m	class:LabelSmoothing
+__init__	inversefed/medianfilt.py	/^    def __init__(self, kernel_size=3, stride=1, padding=0, same=True):$/;"	m	class:MedianPool2d
+__init__	inversefed/metrics.py	/^    def __init__(self, batch_size=32, setup=dict(device=torch.device('cpu'), dtype=torch.float))/;"	m	class:InceptionScore
+__init__	inversefed/nn/densenet.py	/^    def __init__(self, block, nblocks, num_channels=0, growth_rate=12, reduction=0.5, num_classe/;"	m	class:_DenseNet
+__init__	inversefed/nn/densenet.py	/^    def __init__(self, in_planes, growth_rate):$/;"	m	class:_Bottleneck
+__init__	inversefed/nn/densenet.py	/^    def __init__(self, in_planes, out_planes):$/;"	m	class:_Transition
+__init__	inversefed/nn/models.py	/^    def __init__(self, block, layers, num_classes=10, num_channels=0, zero_init_residual=False,$/;"	m	class:ResNet
+__init__	inversefed/nn/models.py	/^    def __init__(self, num_classes=10, num_channels=3):$/;"	m	class:LeNetZhu
+__init__	inversefed/nn/models.py	/^    def __init__(self, width=32, num_classes=10, num_channels=3):$/;"	m	class:ConvNet
+__init__	inversefed/nn/modules.py	/^    def __init__(self, net):$/;"	m	class:MetaMonkey
+__init__	inversefed/nn/revnet.py	/^    def __init__(self, in_ch, out_ch, stride=1, first=False, dropout_rate=0.,$/;"	m	class:irevnet_block
+__init__	inversefed/nn/revnet.py	/^    def __init__(self, nBlocks, nStrides, nClasses, nChannels=None, init_ds=2,$/;"	m	class:iRevNet
+__init__	inversefed/nn/revnet_utils.py	/^    def __init__(self, block_size):$/;"	m	class:psi
+__init__	inversefed/nn/revnet_utils.py	/^    def __init__(self, module, prefix, *args):$/;"	m	class:ListModule
+__init__	inversefed/nn/revnet_utils.py	/^    def __init__(self, pad_size):$/;"	m	class:injective_pad
+__init__	inversefed/optimization_strategy.py	/^    def __init__(self, lr=None, epochs=None, dryrun=False):$/;"	m	class:AdamStrategy
+__init__	inversefed/optimization_strategy.py	/^    def __init__(self, lr=None, epochs=None, dryrun=False):$/;"	m	class:ConservativeStrategy
+__init__	inversefed/optimization_strategy.py	/^    def __init__(self, lr=None, epochs=None, dryrun=False):$/;"	m	class:Strategy
+__init__	inversefed/reconstruction_algorithms.py	/^    def __init__(self, model, mean_std=(0.0, 1.0), config=DEFAULT_CONFIG, num_images=1):$/;"	m	class:GradientReconstructor
+__init__	inversefed/reconstruction_algorithms.py	/^    def __init__(self, model, mean_std=(0.0, 1.0), local_steps=2, local_lr=1e-4,$/;"	m	class:FedAvgReconstructor
+__init__	inversefed/training/scheduler.py	/^    def __init__(self, optimizer, multiplier, total_epoch, after_scheduler=None):$/;"	m	class:GradualWarmupScheduler
+__init__	inversefed/utils.py	/^    def __init__(self, n_holes, length, dm, ds):$/;"	m	class:Cutout
+__len__	cifar.py	/^    def __len__(self):$/;"	m	class:CIFAR10
+__len__	inversefed/data/datasets.py	/^    def __len__(self):$/;"	m	class:DatasetFromFolder
+__len__	inversefed/nn/revnet_utils.py	/^    def __len__(self):$/;"	m	class:ListModule
+_average_trials	inversefed/reconstruction_algorithms.py	/^    def _average_trials(self, x, labels, input_data, stats):$/;"	m	class:GradientReconstructor
+_build_bsds_dn	inversefed/data/data.py	/^def _build_bsds_dn(data_path, augmentations=True, normalize=True, upscale_factor=1, noise_level=/;"	f
+_build_bsds_sr	inversefed/data/data.py	/^def _build_bsds_sr(data_path, augmentations=True, normalize=True, upscale_factor=3, RGB=True):$/;"	f
+_build_cifar10	inversefed/data/data_processing.py	/^def _build_cifar10(data_path, augmentations=True, normalize=True):$/;"	f
+_build_cifar100	inversefed/data/data_processing.py	/^def _build_cifar100(data_path, augmentations=True, normalize=True):$/;"	f
+_build_imagenet	inversefed/data/data_processing.py	/^def _build_imagenet(data_path, augmentations=True, normalize=True):$/;"	f
+_build_mnist	inversefed/data/data_processing.py	/^def _build_mnist(data_path, augmentations=True, normalize=True):$/;"	f
+_build_mnist_gray	inversefed/data/data_processing.py	/^def _build_mnist_gray(data_path, augmentations=True, normalize=True):$/;"	f
+_calculate_valid_crop_size	inversefed/data/data.py	/^def _calculate_valid_crop_size(crop_size, upscale_factor):$/;"	f
+_check_integrity	cifar.py	/^    def _check_integrity(self):$/;"	m	class:CIFAR10
+_download_bsd300	inversefed/data/data.py	/^def _download_bsd300(dest="dataset"):$/;"	f
+_forward_impl	inversefed/nn/models.py	/^    def _forward_impl(self, x):$/;"	m	class:ResNet
+_get_meanstd	inversefed/data/data_processing.py	/^def _get_meanstd(dataset):$/;"	f
+_gradient_closure	inversefed/reconstruction_algorithms.py	/^    def _gradient_closure(self, optimizer, x_trial, input_gradient, label):$/;"	m	class:GradientReconstructor
+_gradient_closure	inversefed/reconstruction_algorithms.py	/^    def _gradient_closure(self, optimizer, x_trial, input_parameters, labels):$/;"	m	class:FedAvgReconstructor
+_init_images	inversefed/reconstruction_algorithms.py	/^    def _init_images(self, img_shape):$/;"	m	class:GradientReconstructor
+_input_transform	inversefed/data/data.py	/^def _input_transform(crop_size, upscale_factor, patch_size=None):$/;"	f
+_is_image_file	inversefed/data/datasets.py	/^def _is_image_file(filename):$/;"	f
+_label_to_onehot	inversefed/reconstruction_algorithms.py	/^def _label_to_onehot(target, num_classes=100):$/;"	f
+_load_img	inversefed/data/datasets.py	/^def _load_img(filepath, RGB=True):$/;"	f
+_load_meta	cifar.py	/^    def _load_meta(self):$/;"	m	class:CIFAR10
+_make_dense_layers	inversefed/nn/densenet.py	/^    def _make_dense_layers(self, block, in_planes, nblock):$/;"	m	class:_DenseNet
+_padding	inversefed/medianfilt.py	/^    def _padding(self, x):$/;"	m	class:MedianPool2d
+_run_trial	inversefed/reconstruction_algorithms.py	/^    def _run_trial(self, x_trial, input_data, labels, dryrun=False):$/;"	m	class:GradientReconstructor
+_score_trial	inversefed/reconstruction_algorithms.py	/^    def _score_trial(self, x_trial, input_gradient, label):$/;"	m	class:GradientReconstructor
+_score_trial	inversefed/reconstruction_algorithms.py	/^    def _score_trial(self, x_trial, input_parameters, labels):$/;"	m	class:FedAvgReconstructor
+_target_transform	inversefed/data/data.py	/^def _target_transform(crop_size, patch_size=None):$/;"	f
+_validate_config	inversefed/reconstruction_algorithms.py	/^def _validate_config(config):$/;"	f
+acc_root	searchalg/search_best.py	/^    acc_root = 'accuracy\/data_{}_arch_{}\/'.format(opt.data, opt.arch)$/;"	v
+accuracy_metric	benchmark/search_transform_attack.py	/^def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader):$/;"	f
+activation_errors	inversefed/metrics.py	/^def activation_errors(model, x1, x2):$/;"	f
+add_noise	inversefed/training/training_routine.py	/^def add_noise(model, lr):$/;"	f
+append	inversefed/nn/revnet_utils.py	/^    def append(self, new_module):$/;"	m	class:ListModule
+arch	benchmark/cifar100_attack.py	/^arch = opt.arch$/;"	v
+arch	benchmark/cifar100_train.py	/^arch = opt.arch$/;"	v
+arch	benchmark/search_transform_attack.py	/^arch = opt.arch$/;"	v
+area_ratio	benchmark/search_transform_attack.py	/^    def area_ratio(y_list, inter):$/;"	f	function:reconstruct	file:
+backtracing	searchalg/batch_generate.py	/^def backtracing(num, scheme):$/;"	f
+base_folder	cifar.py	/^    base_folder = 'cifar-10-batches-py'$/;"	v	class:CIFAR10
+base_folder	cifar.py	/^    base_folder = 'cifar-100-python'$/;"	v	class:CIFAR100
+build_transform	benchmark/comm.py	/^def build_transform(normalize=True, policy_list=list(), opt=None, defs=None):$/;"	f
+cal_dis	benchmark/search_transform_attack.py	/^def cal_dis(a, b, metric='L2'):$/;"	f
+calculate_dw	benchmark/search_transform_attack.py	/^def calculate_dw(model, inputs, labels, loss_fn):$/;"	f
+check_activations	inversefed/metrics.py	/^    def check_activations(self, input, output):$/;"	f	function:activation_errors	file:
+cifar100_mean	inversefed/consts.py	/^cifar100_mean = [0.5071598291397095, 0.4866936206817627, 0.44120192527770996]$/;"	v
+cifar100_std	inversefed/consts.py	/^cifar100_std = [0.2673342823982239, 0.2564384639263153, 0.2761504650115967]$/;"	v
+cifar10_mean	inversefed/consts.py	/^cifar10_mean = [0.4914672374725342, 0.4822617471218109, 0.4467701315879822]$/;"	v
+cifar10_std	inversefed/consts.py	/^cifar10_std = [0.24703224003314972, 0.24348513782024384, 0.26158785820007324]$/;"	v
+closure	inversefed/reconstruction_algorithms.py	/^        def closure():$/;"	f	member:FedAvgReconstructor._gradient_closure	file:
+closure	inversefed/reconstruction_algorithms.py	/^        def closure():$/;"	f	member:GradientReconstructor._gradient_closure	file:
+config	benchmark/cifar100_attack.py	/^config = create_config(opt)$/;"	v
+construct_dataloaders	inversefed/data/data_processing.py	/^def construct_dataloaders(dataset, defs, data_path='data', shuffle=True, normalize=True):$/;"	f
+construct_model	inversefed/nn/models.py	/^def construct_model(model, num_classes=10, seed=None, num_channels=3, modelkey=None):$/;"	f
+construct_policy	benchmark/comm.py	/^def construct_policy(policy_list):$/;"	f
+content	searchalg/search_best.py	/^        content = np.load(pathname).tolist()$/;"	v
+create_checkpoint_dir	benchmark/cifar100_attack.py	/^def create_checkpoint_dir():$/;"	f
+create_config	benchmark/comm.py	/^def create_config(opt):$/;"	f
+create_model	benchmark/comm.py	/^def create_model(opt):$/;"	f
+create_save_dir	benchmark/cifar100_attack.py	/^def create_save_dir():$/;"	f
+create_save_dir	benchmark/cifar100_train.py	/^def create_save_dir():$/;"	f
+data	inversefed/data/datasets.py	/^import torch.utils.data as data$/;"	I	nameref:module:torch.utils.data
+defs	benchmark/cifar100_attack.py	/^defs = inversefed.training_strategy('conservative'); defs.epochs = opt.epochs$/;"	v
+defs	benchmark/cifar100_train.py	/^defs = inversefed.training_strategy('conservative'); defs.epochs = opt.epochs$/;"	v
+defs	benchmark/search_transform_attack.py	/^defs = inversefed.training_strategy('conservative'); defs.epochs = opt.epochs$/;"	v
+defs	create_tiny_dataset.py	/^defs = inversefed.training_strategy('conservative'); $/;"	v
+densenet_cifar	inversefed/nn/densenet.py	/^def densenet_cifar(num_classes=10):$/;"	f
+download	cifar.py	/^    def download(self):$/;"	m	class:CIFAR10
+eval_score	benchmark/search_transform_attack.py	/^def eval_score(jacob, labels=None):$/;"	f
+evaluate	benchmark/cifar100_train.py	/^def evaluate():$/;"	f
+extra_repr	cifar.py	/^    def extra_repr(self):$/;"	m	class:CIFAR10
+filename	cifar.py	/^    filename = "cifar-10-python.tar.gz"$/;"	v	class:CIFAR10
+filename	cifar.py	/^    filename = "cifar-100-python.tar.gz"$/;"	v	class:CIFAR100
+forward	inversefed/data/loss.py	/^    def forward(self, x, target):$/;"	m	class:LabelSmoothing
+forward	inversefed/medianfilt.py	/^    def forward(self, x):$/;"	m	class:MedianPool2d
+forward	inversefed/metrics.py	/^    def forward(self, image_batch):$/;"	m	class:InceptionScore
+forward	inversefed/nn/densenet.py	/^    def forward(self, x):$/;"	m	class:_Bottleneck
+forward	inversefed/nn/densenet.py	/^    def forward(self, x):$/;"	m	class:_DenseNet
+forward	inversefed/nn/densenet.py	/^    def forward(self, x):$/;"	m	class:_Transition
+forward	inversefed/nn/models.py	/^    def forward(self, input):$/;"	m	class:ConvNet
+forward	inversefed/nn/models.py	/^    def forward(self, x):$/;"	m	class:LeNetZhu
+forward	inversefed/nn/modules.py	/^    def forward(self, inputs, parameters=None):$/;"	m	class:MetaMonkey
+forward	inversefed/nn/revnet.py	/^    def forward(self, x):$/;"	m	class:irevnet_block
+forward	inversefed/nn/revnet.py	/^    def forward(self, x, return_bijection=False):$/;"	m	class:iRevNet
+forward	inversefed/nn/revnet_utils.py	/^    def forward(self, input):$/;"	m	class:psi
+forward	inversefed/nn/revnet_utils.py	/^    def forward(self, x):$/;"	m	class:injective_pad
+get_all_params	inversefed/nn/revnet_utils.py	/^def get_all_params(var, all_params):$/;"	f
+get_batch_jacobian	benchmark/search_transform_attack.py	/^def get_batch_jacobian(net, x, target):$/;"	f
+get_lr	inversefed/training/scheduler.py	/^    def get_lr(self):$/;"	m	class:GradualWarmupScheduler
+get_psnr	inversefed/data/loss.py	/^        def get_psnr(img_in, img_ref):$/;"	f	member:PSNR.psnr_compute	file:
+get_psnr	inversefed/metrics.py	/^    def get_psnr(img_in, img_ref):$/;"	f	function:psnr	file:
+global_prune	inversefed/training/training_routine.py	/^def global_prune(model, percent):$/;"	f
+iRevNet	inversefed/nn/revnet.py	/^class iRevNet(nn.Module):$/;"	c
+imagenet_mean	inversefed/consts.py	/^imagenet_mean = [0.485, 0.456, 0.406]$/;"	v
+imagenet_std	inversefed/consts.py	/^imagenet_std = [0.229, 0.224, 0.225]$/;"	v
+img_warp	autoaugment.py	/^def img_warp(img):$/;"	f
+img_zoom	autoaugment.py	/^def img_zoom(img):$/;"	f
+injective_pad	inversefed/nn/revnet_utils.py	/^class injective_pad(nn.Module):$/;"	c
+inverse	inversefed/nn/revnet.py	/^    def inverse(self, out_bij):$/;"	m	class:iRevNet
+inverse	inversefed/nn/revnet.py	/^    def inverse(self, x):$/;"	m	class:irevnet_block
+inverse	inversefed/nn/revnet_utils.py	/^    def inverse(self, input):$/;"	m	class:psi
+inverse	inversefed/nn/revnet_utils.py	/^    def inverse(self, x):$/;"	m	class:injective_pad
+irevnet_block	inversefed/nn/revnet.py	/^class irevnet_block(nn.Module):$/;"	c
+irevnet_stack	inversefed/nn/revnet.py	/^    def irevnet_stack(self, _block, nChannels, nBlocks, nStrides, dropout_rate,$/;"	m	class:iRevNet
+lap_noise	inversefed/training/training_routine.py	/^def lap_noise(model, lr):$/;"	f
+lap_sample	inversefed/training/training_routine.py	/^def lap_sample(shape):$/;"	f
+loss_fn	inversefed/reconstruction_algorithms.py	/^                def loss_fn(pred, labels):$/;"	f	member:GradientReconstructor.reconstruct	file:
+loss_steps	inversefed/reconstruction_algorithms.py	/^def loss_steps(model, inputs, labels, loss_fn=torch.nn.CrossEntropyLoss(), lr=1e-4, local_steps=/;"	f
+main	benchmark/cifar100_attack.py	/^def main():$/;"	f
+main	benchmark/cifar100_train.py	/^def main():$/;"	f
+main	benchmark/search_transform_attack.py	/^def main():$/;"	f
+main	create_tiny_dataset.py	/^def main():$/;"	f
+maxpath	searchalg/search_best.py	/^    maxpath, maxval = None, -sys.maxsize$/;"	v
+maxval	searchalg/search_best.py	/^    maxpath, maxval = None, -sys.maxsize$/;"	v
+merge	inversefed/nn/revnet_utils.py	/^def merge(x1, x2):$/;"	f
+meta	cifar.py	/^    meta = {$/;"	v	class:CIFAR10
+meta	cifar.py	/^    meta = {$/;"	v	class:CIFAR100
+metric	inversefed/data/loss.py	/^    def metric(self, reference, argmin):$/;"	m	class:Loss
+metric	inversefed/data/loss.py	/^    def metric(self, x=None, y=None):$/;"	m	class:Classification
+metric	inversefed/data/loss.py	/^    def metric(self, x=None, y=None):$/;"	m	class:PSNR
+minpath	searchalg/search_best.py	/^    minpath, minval = None, sys.maxsize$/;"	v
+minval	searchalg/search_best.py	/^    minpath, minval = None, sys.maxsize$/;"	v
+mnist_mean	inversefed/consts.py	/^mnist_mean = (0.13066373765468597,)$/;"	v
+mnist_std	inversefed/consts.py	/^mnist_std = (0.30810782313346863,)$/;"	v
+mode	benchmark/cifar100_attack.py	/^mode = opt.mode$/;"	v
+mode	benchmark/cifar100_train.py	/^mode = opt.mode$/;"	v
+mode	benchmark/search_transform_attack.py	/^mode = opt.mode$/;"	v
+model	inversefed/nn/revnet.py	/^    model = iRevNet(nBlocks=[6, 16, 72, 6], nStrides=[2, 2, 2, 2],$/;"	v
+nn	benchmark/cifar100_train.py	/^import torch.nn as nn$/;"	I	nameref:module:torch.nn
+nn	inversefed/data/loss.py	/^import torch.nn as nn$/;"	I	nameref:module:torch.nn
+nn	inversefed/medianfilt.py	/^import torch.nn as nn$/;"	I	nameref:module:torch.nn
+nn	inversefed/nn/densenet.py	/^import torch.nn as nn$/;"	I	nameref:module:torch.nn
+nn	inversefed/nn/models.py	/^import torch.nn as nn$/;"	I	nameref:module:torch.nn
+nn	inversefed/nn/revnet.py	/^import torch.nn as nn$/;"	I	nameref:module:torch.nn
+nn	inversefed/nn/revnet_utils.py	/^import torch.nn as nn$/;"	I	nameref:module:torch.nn
+np	autoaugment.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	benchmark/cifar100_attack.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	benchmark/cifar100_train.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	benchmark/comm.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	benchmark/search_transform_attack.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	cifar.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	create_tiny_dataset.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	inversefed/data/loss.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	inversefed/nn/models.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	inversefed/training/training_routine.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	inversefed/utils.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	searchalg/search_best.py	/^import numpy as np$/;"	I	nameref:module:numpy
+num_images	benchmark/cifar100_attack.py	/^num_images = 1$/;"	v
+num_images	benchmark/search_transform_attack.py	/^num_images = 1$/;"	v
+num_per_gpu	searchalg/batch_generate.py	/^num_per_gpu = 20$/;"	v
+opt	benchmark/cifar100_attack.py	/^opt = parser.parse_args()$/;"	v
+opt	benchmark/cifar100_train.py	/^opt = parser.parse_args()$/;"	v
+opt	benchmark/search_transform_attack.py	/^opt = parser.parse_args()$/;"	v
+opt	create_tiny_dataset.py	/^opt = parser.parse_args()$/;"	v
+opt	searchalg/batch_generate.py	/^opt = parser.parse_args()$/;"	v
+opt	searchalg/search_best.py	/^opt = parser.parse_args()$/;"	v
+options	inversefed/options.py	/^def options():$/;"	f
+parser	benchmark/cifar100_attack.py	/^parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')$/;"	v
+parser	benchmark/cifar100_train.py	/^parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')$/;"	v
+parser	benchmark/search_transform_attack.py	/^parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')$/;"	v
+parser	create_tiny_dataset.py	/^parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')$/;"	v
+parser	searchalg/batch_generate.py	/^parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')$/;"	v
+parser	searchalg/search_best.py	/^parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')$/;"	v
+pathname	searchalg/search_best.py	/^        pathname = os.path.join(acc_root, path)$/;"	v
+pathname	searchalg/search_best.py	/^        pathname = os.path.join(search_root, path)$/;"	v
+pickle	cifar.py	/^    import cPickle as pickle$/;"	I	nameref:module:cPickle
+plt	benchmark/cifar100_attack.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
+plt	benchmark/cifar100_train.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
+plt	benchmark/search_transform_attack.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
+plt	create_tiny_dataset.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
+policies	benchmark/cifar100_train.py	/^policies = policy.policies$/;"	v
+policies	benchmark/comm.py	/^policies = policy.policies$/;"	v
+policies	benchmark/search_transform_attack.py	/^policies = policy.policies$/;"	v
+policies	policy.py	/^policies = [$/;"	v
+preprocess	benchmark/comm.py	/^def preprocess(opt, defs, valid=False):$/;"	f
+print_status	inversefed/training/training_routine.py	/^def print_status(epoch, loss_fn, optimizer, stats):$/;"	f
+prune	inversefed/training/training_routine.py	/^def prune(gradient, percent):$/;"	f
+psi	inversefed/nn/revnet_utils.py	/^class psi(nn.Module):$/;"	c
+psnr	inversefed/metrics.py	/^def psnr(img_batch, ref_batch, batched=False, factor=1.0):$/;"	f
+psnr_compute	inversefed/data/loss.py	/^    def psnr_compute(img_batch, ref_batch, batched=False, factor=1.0):$/;"	m	class:PSNR
+reconstruct	benchmark/cifar100_attack.py	/^def reconstruct(idx, model, loss_fn, trainloader, validloader):$/;"	f
+reconstruct	benchmark/search_transform_attack.py	/^def reconstruct(idx, model, loss_fn, trainloader, validloader):$/;"	f
+reconstruct	inversefed/reconstruction_algorithms.py	/^    def reconstruct(self, input_data, labels, img_shape=(3, 32, 32), dryrun=False, eval=True, to/;"	m	class:GradientReconstructor
+reconstruction_costs	inversefed/reconstruction_algorithms.py	/^def reconstruction_costs(gradients, input_gradient, cost_fn='l2', indices='def', weights='equal'/;"	f
+results	searchalg/search_best.py	/^    results = list()$/;"	v
+rotate_with_fill	autoaugment.py	/^        def rotate_with_fill(img, magnitude):$/;"	f	member:SubPolicy.__init__	file:
+save_to_table	inversefed/utils.py	/^def save_to_table(out_dir, name, dryrun, **kwargs):$/;"	f
+scheme_list	searchalg/batch_generate.py	/^scheme_list = list()$/;"	v
+search_root	searchalg/search_best.py	/^    search_root = 'search\/data_{}_arch_{}\/'.format(opt.data, opt.arch)$/;"	v
+seed	benchmark/cifar100_attack.py	/^seed=23333$/;"	v
+seed	benchmark/cifar100_train.py	/^seed=23333$/;"	v
+seed	benchmark/search_transform_attack.py	/^seed=23333$/;"	v
+seed	create_tiny_dataset.py	/^seed=23333$/;"	v
+set_deterministic	inversefed/utils.py	/^def set_deterministic():$/;"	f
+set_optimizer	inversefed/training/training_routine.py	/^def set_optimizer(model, defs):$/;"	f
+set_random_seed	inversefed/utils.py	/^def set_random_seed(seed=233):$/;"	f
+setup	benchmark/cifar100_attack.py	/^setup = inversefed.utils.system_startup()$/;"	v
+setup	benchmark/cifar100_train.py	/^setup = inversefed.utils.system_startup()$/;"	v
+setup	benchmark/search_transform_attack.py	/^setup = inversefed.utils.system_startup()$/;"	v
+setup	create_tiny_dataset.py	/^setup = inversefed.utils.system_startup()$/;"	v
+split	benchmark/comm.py	/^def split(aug_list):$/;"	f
+split	inversefed/nn/revnet_utils.py	/^def split(x):$/;"	f
+step	inversefed/training/scheduler.py	/^    def step(self, epoch=None, metrics=None):$/;"	m	class:GradualWarmupScheduler
+step	inversefed/training/training_routine.py	/^def step(model, loss_fn, dataloader, optimizer, scheduler, defs, setup, stats):$/;"	f
+step_ReduceLROnPlateau	inversefed/training/scheduler.py	/^    def step_ReduceLROnPlateau(self, metrics, epoch=None):$/;"	m	class:GradualWarmupScheduler
+step_with_defense	inversefed/training/training_routine.py	/^def step_with_defense(model, loss_fn, dataloader, optimizer, scheduler, defs, setup, stats, opt)/;"	f
+sub_transform	benchmark/comm.py	/^class sub_transform:$/;"	c
+system_startup	inversefed/utils.py	/^def system_startup(args=None, defs=None):$/;"	f
+test_list	cifar.py	/^    test_list = [$/;"	v	class:CIFAR10
+test_list	cifar.py	/^    test_list = [$/;"	v	class:CIFAR100
+tgz_md5	cifar.py	/^    tgz_md5 = 'c58f30108f718f92721af3b95e74349a'$/;"	v	class:CIFAR10
+tgz_md5	cifar.py	/^    tgz_md5 = 'eb9058c3a382ffc7106e4002c42a8d85'$/;"	v	class:CIFAR100
+total_variation	inversefed/metrics.py	/^def total_variation(x):$/;"	f
+train	inversefed/training/training_routine.py	/^def train(model, loss_fn, trainloader, validloader, defs, setup=dict(dtype=torch.float, device=t/;"	f
+train_list	cifar.py	/^    train_list = [$/;"	v	class:CIFAR10
+train_list	cifar.py	/^    train_list = [$/;"	v	class:CIFAR100
+train_with_defense	inversefed/training/training_routine.py	/^def train_with_defense(model, loss_fn, trainloader, validloader, defs, setup=dict(dtype=torch.fl/;"	f
+trained_model	benchmark/cifar100_attack.py	/^trained_model = True$/;"	v
+trained_model	benchmark/cifar100_train.py	/^trained_model = True$/;"	v
+trained_model	benchmark/search_transform_attack.py	/^trained_model = True$/;"	v
+training_strategy	inversefed/optimization_strategy.py	/^def training_strategy(strategy, lr=None, epochs=None, dryrun=False):$/;"	f
+transforms	autoaugment.py	/^import torchvision.transforms as transforms$/;"	I	nameref:module:torchvision.transforms
+transforms	benchmark/cifar100_attack.py	/^import torchvision.transforms as transforms$/;"	I	nameref:module:torchvision.transforms
+transforms	benchmark/cifar100_train.py	/^import torchvision.transforms as transforms$/;"	I	nameref:module:torchvision.transforms
+transforms	benchmark/comm.py	/^import torchvision.transforms as transforms$/;"	I	nameref:module:torchvision.transforms
+transforms	benchmark/search_transform_attack.py	/^import torchvision.transforms as transforms$/;"	I	nameref:module:torchvision.transforms
+transforms	create_tiny_dataset.py	/^import torchvision.transforms as transforms$/;"	I	nameref:module:torchvision.transforms
+transforms	inversefed/data/data_processing.py	/^import torchvision.transforms as transforms$/;"	I	nameref:module:torchvision.transforms
+url	cifar.py	/^    url = "https:\/\/www.cs.toronto.edu\/~kriz\/cifar-10-python.tar.gz"$/;"	v	class:CIFAR10
+url	cifar.py	/^    url = "https:\/\/www.cs.toronto.edu\/~kriz\/cifar-100-python.tar.gz"$/;"	v	class:CIFAR100
+val1	searchalg/search_best.py	/^        val1 = np.mean(content)$/;"	v
+val2	searchalg/search_best.py	/^        val2 = np.mean(content)$/;"	v
+validate	inversefed/training/training_routine.py	/^def validate(model, loss_fn, dataloader, defs, setup, stats):$/;"	f
+weights_init	inversefed/nn/models.py	/^    def weights_init(m):$/;"	m	class:LeNetZhu
+write	searchalg/batch_generate.py	/^def write():$/;"	f
+y	inversefed/nn/revnet.py	/^    y = model(torch.randn(1, 3, 224, 224))$/;"	v
