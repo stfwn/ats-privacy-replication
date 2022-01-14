@@ -1,0 +1,121 @@
+from pytorch_lightning import LightningModule
+import torch
+from torch import nn, optim
+import torch.nn.functional as F
+from torchvision.models import ResNet
+from torchvision.models.resnet import BasicBlock
+import torchmetrics
+
+
+class ResNet20(LightningModule):
+    """This is a LightningModule version of JonasGeiping's ResNet
+    implementation [1], which itself is a copy of torchvision's ResNet [2] with
+    added arguments for the number of layers and their strides.
+
+    [1]: https://github.com/JonasGeiping/invertinggradients
+    [2]: https://pytorch.org/vision/stable/_modules/torchvision/models/resnet.html
+    """
+
+    _make_layer = ResNet._make_layer
+
+    def __init__(
+        self,
+        num_channels,
+        num_classes,
+        epochs,
+        learning_rate=0.1,
+        momentum=0.9,
+        weight_decay=5e-4,
+        gamma=0.1,
+        nesterov=True,
+    ):
+        super().__init__()
+        self.save_hyperparameters()
+
+        # Metrics
+        self.train_acc = torchmetrics.Accuracy()
+        self.val_acc = torchmetrics.Accuracy()
+        self.test_acc = torchmetrics.Accuracy()
+
+        self.optimizer = optim.SGD
+        self.loss_function = F.cross_entropy
+
+        # Needed for _make_layer
+        self.inplanes = self.base_width = 64
+        self._norm_layer = nn.BatchNorm2d
+        self.dilation = 1
+        self.groups = 1
+
+        self.layers = torch.nn.ModuleList(
+            [
+                nn.Conv2d(num_channels, self.base_width, kernel_size=3, stride=1, padding=1, bias=False),
+                self._norm_layer(self.base_width),
+                nn.ReLU(inplace=True),
+                self._make_layer(BasicBlock, self.base_width, 3, stride=1, dilate=False),
+                self._make_layer(BasicBlock, self.base_width * 2, 3, stride=2, dilate=False),
+                self._make_layer(BasicBlock, self.base_width * 4, 3, stride=2, dilate=False),
+                nn.AdaptiveAvgPool2d((1, 1)),
+                nn.Flatten(1),
+                nn.Linear((self.base_width * 8) // 2 * BasicBlock.expansion, num_classes),
+            ]
+        )
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
+            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
+
+    def configure_optimizers(self):
+        optimizer = self.optimizer(
+            self.parameters(),
+            lr=self.hparams.learning_rate,
+            momentum=self.hparams.momentum,
+            weight_decay=self.hparams.weight_decay,
+            nesterov=self.hparams.nesterov,
+        )
+        scheduler = optim.lr_scheduler.MultiStepLR(
+            optimizer,
+            milestones=[
+                # Decay the learning rate in equal length steps over the course of training
+                self.hparams.epochs // 2.667,
+                self.hparams.epochs // 1.6,
+                self.hparams.epochs // 1.142,
+            ],
+            gamma=self.hparams.gamma,
+        )
+
+        return [optimizer], [scheduler]
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        train_loss = self.loss_function(y_hat, y)
+        self.train_acc(y_hat, y)
+        self.log("loss/train", train_loss)
+        self.log("acc/train", self.train_acc, on_step=True, on_epoch=True)
+        return train_loss
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        val_loss = self.loss_function(y_hat, y)
+        self.val_acc(y_hat, y)
+        self.log("loss/val", val_loss)
+        self.log("acc/val", self.val_acc, on_step=True, on_epoch=True)
+        return {"loss": val_loss, "y_hat": y_hat, "y": y}
+
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        test_loss = self.loss_function(y_hat, y)
+        self.test_acc(y_hat, y)
+        self.log("loss/test", test_loss)
+        self.log("acc/test", self.test_acc, on_epoch=True)
+        return test_loss
