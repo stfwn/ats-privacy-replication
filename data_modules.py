@@ -1,8 +1,8 @@
-from typing import Any, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 from pl_bolts.datamodules.vision_datamodule import VisionDataModule
 from pl_bolts.datamodules import FashionMNISTDataModule
-from torchvision import datasets
+from torchvision import datasets, transforms
 from torchvision.datasets import CIFAR100
 
 
@@ -65,3 +65,6 @@ class CIFAR100DataModule(VisionDataModule):
     @property
     def num_classes(self) -> int:
         return 100
+
+    def default_transforms(self) -> Callable:
+        return transforms.Compose([transforms.ToTensor()])
