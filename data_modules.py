@@ -1,70 +1,101 @@
 from typing import Any, Callable, Optional, Union
+from torch.utils.data import DataLoader
 
-from pl_bolts.datamodules.vision_datamodule import VisionDataModule
-from pl_bolts.datamodules import FashionMNISTDataModule
+from pytorch_lightning import LightningDataModule
 from torchvision import datasets, transforms
-from torchvision.datasets import CIFAR100
 
 
-class FashionMNISTDataModule(FashionMNISTDataModule):
+class FashionMNISTDataModule(LightningDataModule):
+    # TODO
+
+    mean = (0.1307,)
+    std = (0.3081,)
+
     @property
     def num_channels(self):
         return self.dims[0]
 
 
-class CIFAR100DataModule(VisionDataModule):
+class CIFAR100DataModule(LightningDataModule):
     name = "cifar_100"
-    dataset_cls = CIFAR100
     dims = (3, 32, 32)
+    num_classes = 100
+
+    mean = (0.5071598291397095, 0.4866936206817627, 0.44120192527770996)
+    std = (0.2673342823982239, 0.2564384639263153, 0.2761504650115967)
 
     def __init__(
         self,
-        data_dir: Optional[str] = None,
-        val_split: Union[int, float] = 0.2,
-        num_workers: int = 0,
-        normalize: bool = False,
-        batch_size: int = 32,
-        seed: int = 42,
-        shuffle: bool = True,
+        data_dir: Optional[str] = "data",
+        num_workers: int = 8,
+        batch_size: int = 128,
         pin_memory: bool = True,
-        drop_last: bool = False,
         *args: Any,
         **kwargs: Any,
     ) -> None:
         """
         Args:
             data_dir: Where to save/load the data
-            val_split: Percent (float) or number (int) of samples to use for the validation split
             num_workers: How many workers to use for loading data
-            normalize: If true applies image normalize
             batch_size: How many samples per batch to load
             seed: Random seed to be used for train/val/test splits
-            shuffle: If true shuffles the train data every epoch
             pin_memory: If true, the data loader will copy Tensors into CUDA pinned memory before
                         returning them
             drop_last: If true drops the last incomplete batch
         """
-        super().__init__(  # type: ignore[misc]
-            data_dir=data_dir,
-            val_split=val_split,
-            num_workers=num_workers,
-            normalize=normalize,
-            batch_size=batch_size,
-            seed=seed,
-            shuffle=shuffle,
-            pin_memory=pin_memory,
-            drop_last=drop_last,
-            *args,
-            **kwargs,
+        super().__init__(*args, **kwargs)
+        self.data_dir = data_dir if data_dir is not None else os.getcwd()
+        self.num_workers = num_workers
+        self.batch_size = batch_size
+        self.pin_memory = pin_memory
+
+    def prepare_data(self):
+        datasets.CIFAR100(self.data_dir, train=True, download=True)
+        datasets.CIFAR100(self.data_dir, train=False, download=True)
+
+    def setup(self, stage):
+        # No train/val split used in original paper
+        self.train = datasets.CIFAR100(
+            self.data_dir,
+            train=True,
+            transform=transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize(self.mean, self.std),
+                ]
+            ),  # Default transforms in the 'normal' mode.
+        )
+        self.test = datasets.CIFAR100(
+            self.data_dir,
+            train=False,
+            transform=transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize(self.mean, self.std),
+                ]
+            ),  # Default transforms in the 'normal' mode.
+        )
+
+    def train_dataloader(self):
+        return DataLoader(
+            self.train,
+            batch_size=self.batch_size,
+            shuffle=True,
+            drop_last=True,
+            pin_memory=self.pin_memory,
+            num_workers=self.num_workers,
+        )
+
+    def test_dataloader(self):
+        return DataLoader(
+            self.test,
+            batch_size=self.batch_size,
+            shuffle=True,
+            drop_last=False,
+            pin_memory=self.pin_memory,
+            num_workers=self.num_workers,
         )
 
     @property
-    def num_channels(self):
+    def num_channels(self) -> int:
         return self.dims[0]
-
-    @property
-    def num_classes(self) -> int:
-        return 100
-
-    def default_transforms(self) -> Callable:
-        return transforms.Compose([transforms.ToTensor()])
