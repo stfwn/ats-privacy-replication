@@ -40,29 +40,49 @@ class ResNet20(LightningModule):
         self.optimizer = optim.SGD
         self.loss_function = F.cross_entropy
 
-        # Needed for _make_layer
-        self.inplanes = self.base_width = 64
+        # Configure _make_layer :shrug:
+        self.base_width = 64
+        self.inplanes = 16
         self._norm_layer = nn.BatchNorm2d
         self.dilation = 1
         self.groups = 1
 
+        # Create layers
+        width = 16
         self.layers = torch.nn.ModuleList(
             [
-                nn.Conv2d(num_channels, self.base_width, kernel_size=3, stride=1, padding=1, bias=False),
-                self._norm_layer(self.base_width),
+                nn.Conv2d(
+                    num_channels,
+                    self.inplanes,
+                    kernel_size=3,
+                    stride=1,
+                    padding=1,
+                    bias=False,
+                ),
+                self._norm_layer(width),
                 nn.ReLU(inplace=True),
-                self._make_layer(BasicBlock, self.base_width, 3, stride=1, dilate=False),
-                self._make_layer(BasicBlock, self.base_width * 2, 3, stride=2, dilate=False),
-                self._make_layer(BasicBlock, self.base_width * 4, 3, stride=2, dilate=False),
+                self._make_layer(BasicBlock, width, 3, stride=1, dilate=False),
+                self._make_layer(
+                    BasicBlock, width * 2, 3, stride=2, dilate=False
+                ),
+                self._make_layer(
+                    BasicBlock, width * 4, 3, stride=2, dilate=False
+                ),
                 nn.AdaptiveAvgPool2d((1, 1)),
-                nn.Flatten(1),
-                nn.Linear((self.base_width * 8) // 2 * BasicBlock.expansion, num_classes),
+                nn.Flatten(),
+                nn.Linear(
+                    (width * 8) // 2 * BasicBlock.expansion,
+                    num_classes,
+                ),
             ]
         )
 
+        # Init weights
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
+                nn.init.kaiming_normal_(
+                    m.weight, mode="fan_out", nonlinearity="relu"
+                )
             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
