@@ -10,20 +10,19 @@ pl.seed_everything(23333, workers=True)
 
 
 def main(args):
-    # Init model & data
     data_module = {
         "fmnist": data_modules.FashionMNISTDataModule,
         "cifar100": data_modules.CIFAR100DataModule,
     }[args.dataset](
         data_dir=args.data_dir, num_workers=12, batch_size=args.batch_size
     )
+
     model = {"resnet20": models.ResNet20}[args.model](
         num_channels=data_module.num_channels,
         num_classes=data_module.num_classes,
         epochs=args.epochs,
     )
 
-    # Train model
     trainer = pl.Trainer(
         max_epochs=args.epochs,
         gpus=1,
