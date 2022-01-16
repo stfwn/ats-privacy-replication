@@ -118,7 +118,7 @@ class ResNet20(LightningModule):
         train_loss = self.loss_function(y_hat, y)
         self.train_acc(y_hat, y)
         self.log("loss/train", train_loss)
-        self.log("acc/train", self.train_acc, on_step=True, on_epoch=True)
+        self.log("acc/train", self.train_acc, on_step=False, on_epoch=True)
         return train_loss
 
     def test_step(self, batch, batch_idx):
