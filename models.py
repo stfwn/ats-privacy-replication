@@ -34,7 +34,6 @@ class ResNet20(LightningModule):
 
         # Metrics
         self.train_acc = torchmetrics.Accuracy()
-        self.val_acc = torchmetrics.Accuracy()
         self.test_acc = torchmetrics.Accuracy()
 
         self.optimizer = optim.SGD
@@ -121,15 +120,6 @@ class ResNet20(LightningModule):
         self.log("loss/train", train_loss)
         self.log("acc/train", self.train_acc, on_step=True, on_epoch=True)
         return train_loss
-
-    def validation_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self(x)
-        val_loss = self.loss_function(y_hat, y)
-        self.val_acc(y_hat, y)
-        self.log("loss/val", val_loss)
-        self.log("acc/val", self.val_acc, on_step=True, on_epoch=True)
-        return {"loss": val_loss, "y_hat": y_hat, "y": y}
 
     def test_step(self, batch, batch_idx):
         x, y = batch
