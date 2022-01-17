@@ -58,6 +58,10 @@ class DataModule(LightningDataModule):
             num_workers=self.num_workers,
         )
 
+    def val_dataloader(self):
+        """Original paper used test set as val set so we must too."""
+        return self.test_dataloader()
+
     def test_dataloader(self):
         return DataLoader(
             self.test,

@@ -28,12 +28,14 @@ class ResNet20(LightningModule):
         weight_decay=5e-4,
         gamma=0.1,
         nesterov=True,
+        **kwargs,
     ):
         super().__init__()
         self.save_hyperparameters()
 
         # Metrics
         self.train_acc = torchmetrics.Accuracy()
+        self.val_acc = torchmetrics.Accuracy()
         self.test_acc = torchmetrics.Accuracy()
 
         self.optimizer = optim.SGD
@@ -120,6 +122,15 @@ class ResNet20(LightningModule):
         self.log("loss/train", train_loss)
         self.log("acc/train", self.train_acc, on_step=False, on_epoch=True)
         return train_loss
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        val_loss = self.loss_function(y_hat, y)
+        self.val_acc(y_hat, y)
+        self.log("loss/val", val_loss)
+        self.log("acc/val", self.val_acc, on_epoch=True)
+        return val_loss
 
     def test_step(self, batch, batch_idx):
         x, y = batch

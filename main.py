@@ -5,8 +5,9 @@ from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 
 import models
 import data_modules
+import utils
 
-pl.seed_everything(23333, workers=True)
+pl.seed_everything(42, workers=True)
 
 
 def main(args):
@@ -20,7 +21,7 @@ def main(args):
     model = {"resnet20": models.ResNet20}[args.model](
         num_channels=data_module.num_channels,
         num_classes=data_module.num_classes,
-        epochs=args.epochs,
+        **vars(args)  # pass all args just to log them
     )
 
     trainer = pl.Trainer(
@@ -29,14 +30,11 @@ def main(args):
         deterministic=True,
         callbacks=[
             LearningRateMonitor(logging_interval="epoch"),
-            ModelCheckpoint(every_n_epochs=10),
+            utils.PeriodicCheckpoint(every_n_epochs=10),
         ],
     )
-    trainer.fit(model, data_module)
 
-    # Evaluate on tasks
-    #  trainer.test(model, data_module)
-    ...
+    trainer.fit(model, data_module)
 
 
 if __name__ == "__main__":
