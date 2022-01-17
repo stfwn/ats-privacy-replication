@@ -23,7 +23,7 @@ def write():
              
             cmd = 'CUDA_VISIBLE_DEVICES={} python benchmark/search_transform_attack.py --aug_list={} --mode=aug --arch={} --data={} --epochs=100'.format(i%8, suf, opt.arch, opt.data)
             print(cmd)
-        print('}&')
+        print('}')
 
 
 
