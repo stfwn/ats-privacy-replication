@@ -1,27 +1,19 @@
 import os, sys
-sys.path.insert(0, './')
 import torch
-import torchvision
-seed=23333
-torch.manual_seed(seed)
-torch.cuda.manual_seed(seed)
 import random
-random.seed(seed)
-
 import numpy as np
-import matplotlib.pyplot as plt
-from collections import defaultdict
-from PIL import Image
-import inversefed
-import torchvision.transforms as transforms
+import original.inversefed as inversefed
 import argparse
-from autoaugment import SubPolicy
-from inversefed.data.data_processing import _build_cifar100, _get_meanstd
 import torch.nn.functional as F
-from benchmark.comm import create_model, build_transform, preprocess, create_config
-import policy
+from original.benchmark.comm import create_model, preprocess
+import original.policy as policy
 import copy
 
+sys.path.insert(0, './')
+seed = 23333
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+random.seed(seed)
 policies = policy.policies
 
 parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')
@@ -33,10 +25,10 @@ parser.add_argument('--data', default=None, required=True, type=str, help='Visio
 parser.add_argument('--epochs', default=None, required=True, type=int, help='Vision epoch.')
 opt = parser.parse_args()
 
-
 # init env
 setup = inversefed.utils.system_startup()
-defs = inversefed.training_strategy('conservative'); defs.epochs = opt.epochs
+defs = inversefed.training_strategy('conservative')
+defs.epochs = opt.epochs
 
 # init training
 arch = opt.arch
@@ -46,12 +38,11 @@ assert mode in ['normal', 'aug', 'crop']
 num_images = 1
 
 
-
 def eval_score(jacob, labels=None):
     corrs = np.corrcoef(jacob)
-    v, _  = np.linalg.eig(corrs)
+    v, _ = np.linalg.eig(corrs)
     k = 1e-5
-    return -np.sum(np.log(v + k) + 1./(v + k))
+    return -np.sum(np.log(v + k) + 1. / (v + k))
 
 
 def get_batch_jacobian(net, x, target):
@@ -62,6 +53,7 @@ def get_batch_jacobian(net, x, target):
     y.backward(torch.ones_like(y))
     jacob = x.grad.detach()
     return jacob, target.detach()
+
 
 def calculate_dw(model, inputs, labels, loss_fn):
     model.zero_grad()
@@ -75,12 +67,11 @@ def cal_dis(a, b, metric='L2'):
     if metric == 'L2':
         return torch.mean((a - b) * (a - b)).item()
     elif metric == 'L1':
-        return torch.mean(torch.abs(a-b)).item()
+        return torch.mean(torch.abs(a - b)).item()
     elif metric == 'cos':
         return F.cosine_similarity(a.unsqueeze(0), b.unsqueeze(0)).item()
     else:
         raise NotImplementedError
-
 
 
 def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader):
@@ -105,10 +96,9 @@ def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader):
     ground_truth = torch.stack(ground_truth)
     labels = torch.cat(labels)
     model.zero_grad()
-    jacobs, labels= get_batch_jacobian(model, ground_truth, labels)
+    jacobs, labels = get_batch_jacobian(model, ground_truth, labels)
     jacobs = jacobs.reshape(jacobs.size(0), -1).cpu().numpy()
     return eval_score(jacobs, labels)
-
 
 
 def reconstruct(idx, model, loss_fn, trainloader, validloader):
@@ -120,7 +110,7 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
         ds = torch.Tensor([0.3081]).view(1, 1, 1).cuda()
     else:
         raise NotImplementedError
-    
+
     # prepare data
     ground_truth, labels = [], []
     while len(labels) < num_images:
@@ -145,28 +135,28 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
     dx_list = list()
     bin_num = 20
     noise_input = (torch.rand((ground_truth.shape)).cuda() - dm) / ds
-    for dis_iter in range(bin_num+1):
+    for dis_iter in range(bin_num + 1):
         model.zero_grad()
-        fake_ground_truth = (1.0 / bin_num * dis_iter * ground_truth + 1. / bin_num * (bin_num - dis_iter) * noise_input).detach()
+        fake_ground_truth = (1.0 / bin_num * dis_iter * ground_truth + 1. / bin_num * (
+                bin_num - dis_iter) * noise_input).detach()
         fake_dw = calculate_dw(model, fake_ground_truth, labels, loss_fn)
-        dw_loss = sum([cal_dis(dw_a, dw_b, metric=metric) for dw_a, dw_b in zip(fake_dw, input_gradient)]) / len(input_gradient)
+        dw_loss = sum([cal_dis(dw_a, dw_b, metric=metric) for dw_a, dw_b in zip(fake_dw, input_gradient)]) / len(
+            input_gradient)
 
         dw_list.append(dw_loss)
 
     interval_distance = cal_dis(noise_input, ground_truth, metric='L1') / bin_num
 
-
     def area_ratio(y_list, inter):
         area = 0
         max_area = inter * bin_num
         for idx in range(1, len(y_list)):
-            prev = y_list[idx-1]
+            prev = y_list[idx - 1]
             cur = y_list[idx]
             area += (prev + cur) * inter / 2
         return area / max_area
 
     return area_ratio(dw_list, interval_distance)
-
 
 
 def main():
@@ -183,7 +173,7 @@ def main():
     start = time.time()
 
     if True:
-        sample_list = [200+i*5 for i in range(100)]
+        sample_list = [200 + i * 5 for i in range(100)]
         metric_list = list()
         for attack_id, idx in enumerate(sample_list):
             metric = reconstruct(idx, model, loss_fn, trainloader, validloader)
@@ -202,19 +192,18 @@ def main():
     model.load_state_dict(old_state_dict)
     score_list = list()
     for run in range(10):
-        large_samle_list = [200 + run  * 100 + i for i in range(100)]
+        large_samle_list = [200 + run * 100 + i for i in range(100)]
         score = accuracy_metric(large_samle_list, model, loss_fn, trainloader, validloader)
         score_list.append(score)
-    
+
     print('time cost ', time.time() - start)
-    
+
     pathname = 'accuracy/data_{}_arch_{}/{}'.format(opt.data, opt.arch, opt.aug_list)
     root_dir = os.path.dirname(pathname)
     if not os.path.exists(root_dir):
         os.makedirs(root_dir)
     np.save(pathname, score_list)
     print(score_list)
-
 
 
 if __name__ == '__main__':

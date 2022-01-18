@@ -1,34 +1,16 @@
 import os, sys
+import torch
+import random
+import original.inversefed as inversefed
+import argparse
+import original.policy as policy
+from original.benchmark.comm import create_model, preprocess
 
 sys.path.insert(0, "./")
-import torch
-import torchvision
-
 seed = 23333
 torch.manual_seed(seed)
 torch.cuda.manual_seed(seed)
-import random
-
 random.seed(seed)
-
-import numpy as np
-import matplotlib.pyplot as plt
-from collections import defaultdict
-from PIL import Image
-import inversefed
-import torchvision.transforms as transforms
-import argparse
-from autoaugment import SubPolicy
-from inversefed.data.data_processing import _build_cifar100, _get_meanstd
-from inversefed.data.loss import LabelSmoothing
-from inversefed.utils import Cutout
-import torch.nn.functional as F
-import torch.nn as nn
-import policy
-
-from benchmark.comm import create_model, build_transform, preprocess, create_config
-
-
 policies = policy.policies
 
 parser = argparse.ArgumentParser(

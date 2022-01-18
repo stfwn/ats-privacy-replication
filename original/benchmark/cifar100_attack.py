@@ -1,29 +1,17 @@
 import os, sys
-sys.path.insert(0, './')
-import inversefed
 import torch
 import torchvision
-seed=23333
+import random
+import numpy as np
+import argparse
+from original.benchmark.comm import create_model, preprocess, create_config
+from original import inversefed
+
+sys.path.insert(0, './')
+seed = 23333
 torch.manual_seed(seed)
 torch.cuda.manual_seed(seed)
-import random
 random.seed(seed)
-
-import numpy as np
-import matplotlib.pyplot as plt
-from collections import defaultdict
-from PIL import Image
-import inversefed
-import torchvision.transforms as transforms
-import argparse
-from autoaugment import SubPolicy
-from inversefed.data.data_processing import _build_cifar100, _get_meanstd
-from inversefed.data.loss import LabelSmoothing
-from inversefed.utils import Cutout
-import torch.nn.functional as F
-import policy
-from benchmark.comm import create_model, build_transform, preprocess, create_config
-
 
 parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')
 parser.add_argument('--aug_list', default=None, required=True, type=str, help='Vision model.')
@@ -38,11 +26,10 @@ parser.add_argument('--resume', default=0, type=int, help='rlabel')
 opt = parser.parse_args()
 num_images = 1
 
-
 # init env
 setup = inversefed.utils.system_startup()
-defs = inversefed.training_strategy('conservative'); defs.epochs = opt.epochs
-
+defs = inversefed.training_strategy('conservative')
+defs.epochs = opt.epochs
 
 # init training
 arch = opt.arch
@@ -54,12 +41,14 @@ config = create_config(opt)
 
 
 def create_save_dir():
-    return 'benchmark/images/data_{}_arch_{}_epoch_{}_optim_{}_mode_{}_auglist_{}_rlabel_{}'.format(opt.data, opt.arch, opt.epochs, opt.optim, opt.mode, \
-        opt.aug_list, opt.rlabel)
+    return 'benchmark/images/data_{}_arch_{}_epoch_{}_optim_{}_mode_{}_auglist_{}_rlabel_{}'.format(opt.data, opt.arch,
+                                                                                                    opt.epochs,
+                                                                                                    opt.optim, opt.mode, \
+                                                                                                    opt.aug_list,
+                                                                                                    opt.rlabel)
 
 
 def reconstruct(idx, model, loss_fn, trainloader, validloader):
-
     if opt.data == 'cifar100':
         dm = torch.as_tensor(inversefed.consts.cifar10_mean, **setup)[:, None, None]
         ds = torch.as_tensor(inversefed.consts.cifar10_std, **setup)[:, None, None]
@@ -85,7 +74,6 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
     param_list = [param for param in model.parameters() if param.requires_grad]
     input_gradient = torch.autograd.grad(target_loss, param_list)
 
-
     # attack
     print('ground truth label is ', labels)
     rec_machine = inversefed.GradientReconstructor(model, (dm, ds), config, num_images=num_images)
@@ -95,9 +83,9 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
         shape = (1, 32, 32)
 
     if opt.rlabel:
-        output, stats = rec_machine.reconstruct(input_gradient, None, img_shape=shape) # reconstruction label
+        output, stats = rec_machine.reconstruct(input_gradient, None, img_shape=shape)  # reconstruction label
     else:
-        output, stats = rec_machine.reconstruct(input_gradient, labels, img_shape=shape) # specify label
+        output, stats = rec_machine.reconstruct(input_gradient, labels, img_shape=shape)  # specify label
 
     output_denormalized = output * ds + dm
     input_denormalized = ground_truth * ds + dm
@@ -111,21 +99,19 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
     torchvision.utils.save_image(output_denormalized.cpu().clone(), '{}/rec_{}.jpg'.format(save_dir, idx))
     torchvision.utils.save_image(input_denormalized.cpu().clone(), '{}/ori_{}.jpg'.format(save_dir, idx))
 
-
     test_mse = (output_denormalized.detach() - input_denormalized).pow(2).mean().cpu().detach().numpy()
-    feat_mse = (model(output.detach())- model(ground_truth)).pow(2).mean()
+    feat_mse = (model(output.detach()) - model(ground_truth)).pow(2).mean()
     test_psnr = inversefed.metrics.psnr(output_denormalized, input_denormalized)
 
     return {'test_mse': test_mse,
-        'feat_mse': feat_mse,
-        'test_psnr': test_psnr
-    }
-
-
+            'feat_mse': feat_mse,
+            'test_psnr': test_psnr
+            }
 
 
 def create_checkpoint_dir():
-    return 'checkpoints/data_{}_arch_{}_mode_{}_auglist_{}_rlabel_{}'.format(opt.data, opt.arch, opt.mode, opt.aug_list, opt.rlabel)
+    return 'checkpoints/data_{}_arch_{}_mode_{}_auglist_{}_rlabel_{}'.format(opt.data, opt.arch, opt.mode, opt.aug_list,
+                                                                             opt.rlabel)
 
 
 def main():
@@ -136,7 +122,7 @@ def main():
     model.to(**setup)
     if opt.epochs == 0:
         trained_model = False
-        
+
     if trained_model:
         checkpoint_dir = create_checkpoint_dir()
         if 'normal' in checkpoint_dir:
@@ -167,7 +153,6 @@ def main():
         metric_list.append(metric)
     save_dir = create_save_dir()
     np.save('{}/metric.npy'.format(save_dir), metric_list)
-
 
 
 if __name__ == '__main__':
