@@ -1,4 +1,6 @@
 import os, sys
+from math import inf
+
 import torch
 import random
 import numpy as np
@@ -12,7 +14,7 @@ import time
 sys.path.insert(0, './')
 
 
-def eval_score(jacob, labels=None):
+def eval_score(jacob):
     corrs = np.corrcoef(jacob)
     v, _ = np.linalg.eig(corrs)
     k = 1e-5
@@ -20,6 +22,9 @@ def eval_score(jacob, labels=None):
 
 
 def get_batch_jacobian(net, x, target):
+    '''
+    Returns gradient of net prediction on x and detached target
+    '''
     net.eval()
     net.zero_grad()
     x.requires_grad_(True)
@@ -38,6 +43,13 @@ def calculate_dw(model, inputs, labels, loss_fn):
 
 
 def cal_dis(a, b, metric='L2'):
+    '''
+    This function calls the metric with flattened a and b.
+    Metric should be given as a  string:
+    'L2' - L2 norm
+    'L1' - L1 norm
+    'cos' - cosine similarity
+    '''
     a, b = a.flatten(), b.flatten()
     if metric == 'L2':
         return torch.mean((a - b) * (a - b)).item()
@@ -49,26 +61,39 @@ def cal_dis(a, b, metric='L2'):
         raise NotImplementedError
 
 
-def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader):
-
-    # prepare data
+def prepare_data(idx_list, loader, max_num=inf):
+    '''
+    Function used for getting images and labels from dataset
+    '''
     ground_truth, labels = [], []
     for idx in idx_list:
-        img, label = validloader.dataset[idx]
-        idx += 1
+        img, label = loader.dataset[idx]
         if label not in labels:
             labels.append(torch.as_tensor((label,), device=setup['device']))
             ground_truth.append(img.to(**setup))
-
+        if len(labels) >= max_num:
+            break
     ground_truth = torch.stack(ground_truth)
     labels = torch.cat(labels)
+    return ground_truth, labels
+
+
+def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader):
+    '''
+    Implementation of 4.3 part of the paper.
+    '''
+
+    ground_truth, labels = prepare_data(idx_list, validloader)
     model.zero_grad()
     jacobs, labels = get_batch_jacobian(model, ground_truth, labels)
     jacobs = jacobs.reshape(jacobs.size(0), -1).cpu().numpy()
-    return eval_score(jacobs, labels)
+    return eval_score(jacobs)
 
 
 def reconstruct(idx, model, loss_fn, trainloader, validloader):
+    '''
+    Implementation of part 4.2 of the paper
+    '''
     if opt.data == 'cifar100':
         dm = torch.as_tensor(inversefed.consts.cifar10_mean, **setup)[:, None, None]
         ds = torch.as_tensor(inversefed.consts.cifar10_std, **setup)[:, None, None]
@@ -78,23 +103,12 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
     else:
         raise NotImplementedError
 
-    # prepare data
-    ground_truth, labels = [], []
-    while len(labels) < num_images:
-        img, label = validloader.dataset[idx]
-        idx += 1
-        if label not in labels:
-            labels.append(torch.as_tensor((label,), device=setup['device']))
-            ground_truth.append(img.to(**setup))
-
-    ground_truth = torch.stack(ground_truth)
-    labels = torch.cat(labels)
+    ground_truth, labels = prepare_data(list(range(idx, len(validloader))), validloader, num_images)
     model.zero_grad()
 
     # calcuate ori dW
     target_loss, _, _ = loss_fn(model(ground_truth), labels)
     input_gradient = torch.autograd.grad(target_loss, model.parameters())
-    metric = 'cos'
 
     # attack model
     model.eval()
@@ -106,7 +120,7 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
         fake_ground_truth = (1.0 / bin_num * dis_iter * ground_truth + 1. / bin_num * (
                 bin_num - dis_iter) * noise_input).detach()
         fake_dw = calculate_dw(model, fake_ground_truth, labels, loss_fn)
-        dw_loss = sum([cal_dis(dw_a, dw_b, metric=metric) for dw_a, dw_b in zip(fake_dw, input_gradient)]) / len(
+        dw_loss = sum([cal_dis(dw_a, dw_b, metric='cos') for dw_a, dw_b in zip(fake_dw, input_gradient)]) / len(
             input_gradient)
 
         dw_list.append(dw_loss)
@@ -137,6 +151,7 @@ def main():
     # at this step model should be loaded from checkpoint and set to eval
     metric_list = list()
     start = time.time()
+    # sample indices of the data???
     sample_list = [200 + i * 5 for i in range(100)]
 
     #  for each sample(?) get metrics from reconstruction
