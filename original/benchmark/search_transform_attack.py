@@ -23,6 +23,7 @@ def get_batch_jacobian(net, x, target):
     net.eval()
     net.zero_grad()
     x.requires_grad_(True)
+    # this is prediction
     y = net(x)
     y.backward(torch.ones_like(y))
     jacob = x.grad.detach()
@@ -49,14 +50,6 @@ def cal_dis(a, b, metric='L2'):
 
 
 def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader):
-    if opt.data == 'cifar100':
-        dm = torch.as_tensor(inversefed.consts.cifar10_mean, **setup)[:, None, None]
-        ds = torch.as_tensor(inversefed.consts.cifar10_std, **setup)[:, None, None]
-    elif opt.data == 'FashionMinist':
-        dm = torch.Tensor([0.1307]).view(1, 1, 1).cuda()
-        ds = torch.Tensor([0.3081]).view(1, 1, 1).cuda()
-    else:
-        raise NotImplementedError
 
     # prepare data
     ground_truth, labels = [], []
