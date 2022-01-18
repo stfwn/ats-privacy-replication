@@ -6,36 +6,10 @@ import original.inversefed as inversefed
 import argparse
 import torch.nn.functional as F
 from original.benchmark.comm import create_model, preprocess
-import original.policy as policy
 import copy
+import time
 
 sys.path.insert(0, './')
-seed = 23333
-torch.manual_seed(seed)
-torch.cuda.manual_seed(seed)
-random.seed(seed)
-policies = policy.policies
-
-parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')
-parser.add_argument('--mode', default=None, required=True, type=str, help='Mode.')
-parser.add_argument('--aug_list', default=None, required=True, type=str, help='Vision model.')
-parser.add_argument('--rlabel', default=False, type=bool, help='rlabel')
-parser.add_argument('--arch', default=None, required=True, type=str, help='Vision model.')
-parser.add_argument('--data', default=None, required=True, type=str, help='Vision dataset.')
-parser.add_argument('--epochs', default=None, required=True, type=int, help='Vision epoch.')
-opt = parser.parse_args()
-
-# init env
-setup = inversefed.utils.system_startup()
-defs = inversefed.training_strategy('conservative')
-defs.epochs = opt.epochs
-
-# init training
-arch = opt.arch
-trained_model = True
-mode = opt.mode
-assert mode in ['normal', 'aug', 'crop']
-num_images = 1
 
 
 def eval_score(jacob, labels=None):
@@ -123,16 +97,15 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
     ground_truth = torch.stack(ground_truth)
     labels = torch.cat(labels)
     model.zero_grad()
+
     # calcuate ori dW
     target_loss, _, _ = loss_fn(model(ground_truth), labels)
     input_gradient = torch.autograd.grad(target_loss, model.parameters())
-
     metric = 'cos'
 
     # attack model
     model.eval()
     dw_list = list()
-    dx_list = list()
     bin_num = 20
     noise_input = (torch.rand((ground_truth.shape)).cuda() - dm) / ds
     for dis_iter in range(bin_num + 1):
@@ -147,16 +120,17 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
 
     interval_distance = cal_dis(noise_input, ground_truth, metric='L1') / bin_num
 
-    def area_ratio(y_list, inter):
-        area = 0
-        max_area = inter * bin_num
-        for idx in range(1, len(y_list)):
-            prev = y_list[idx - 1]
-            cur = y_list[idx]
-            area += (prev + cur) * inter / 2
-        return area / max_area
+    return area_ratio(dw_list, interval_distance, bin_num)
 
-    return area_ratio(dw_list, interval_distance)
+
+def area_ratio(y_list, inter, bin_num):
+    area = 0
+    max_area = inter * bin_num
+    for idx in range(1, len(y_list)):
+        prev = y_list[idx - 1]
+        cur = y_list[idx]
+        area += (prev + cur) * inter / 2
+    return area / max_area
 
 
 def main():
@@ -165,27 +139,25 @@ def main():
     model.to(**setup)
     old_state_dict = copy.deepcopy(model.state_dict())
     model.load_state_dict(torch.load('checkpoints/tiny_data_{}_arch_{}/{}.pth'.format(opt.data, opt.arch, opt.epochs)))
-
     model.eval()
+
+    # at this step model should be loaded from checkpoint and set to eval
     metric_list = list()
-
-    import time
     start = time.time()
+    sample_list = [200 + i * 5 for i in range(100)]
 
-    if True:
-        sample_list = [200 + i * 5 for i in range(100)]
-        metric_list = list()
-        for attack_id, idx in enumerate(sample_list):
-            metric = reconstruct(idx, model, loss_fn, trainloader, validloader)
-            metric_list.append(metric)
-            print('attach {}th in {}, metric {}'.format(attack_id, opt.aug_list, metric))
+    #  for each sample(?) get metrics from reconstruction
+    for attack_id, idx in enumerate(sample_list):
+        metric = reconstruct(idx, model, loss_fn, trainloader, validloader)
+        metric_list.append(metric)
+        print('attach {}th in {}, metric {}'.format(attack_id, opt.aug_list, metric))
 
     pathname = 'search/data_{}_arch_{}/{}'.format(opt.data, opt.arch, opt.aug_list)
     root_dir = os.path.dirname(pathname)
     if not os.path.exists(root_dir):
         os.makedirs(root_dir)
     if len(metric_list) > 0:
-        print(np.mean(metric_list))
+        print("Mean of metric list:", np.mean(metric_list))
         np.save(pathname, metric_list)
 
     # maybe need old_state_dict
@@ -207,4 +179,31 @@ def main():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')
+    parser.add_argument('--mode', default=None, required=True, type=str, help='Mode.')
+    parser.add_argument('--aug_list', default=None, required=True, type=str, help='Vision model.')
+    parser.add_argument('--rlabel', default=False, type=bool, help='rlabel')
+    parser.add_argument('--arch', default=None, required=True, type=str, help='Vision model.')
+    parser.add_argument('--data', default=None, required=True, type=str, help='Vision dataset.')
+    parser.add_argument('--epochs', default=None, required=True, type=int, help='Vision epoch.')
+    opt = parser.parse_args()
+
+    # setup
+    seed = 23333
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    random.seed(seed)
+
+    # init env
+    setup = inversefed.utils.system_startup()
+    defs = inversefed.training_strategy('conservative')
+    defs.epochs = opt.epochs
+
+    # init training
+    arch = opt.arch
+    trained_model = True
+    mode = opt.mode
+    assert mode in ['normal', 'aug', 'crop']
+    num_images = 1
+
     main()
