@@ -28,6 +28,7 @@ class ResNet20(LightningModule):
         weight_decay=5e-4,
         gamma=0.1,
         nesterov=True,
+        bugged_loss=True,
         **kwargs,
     ):
         super().__init__()
@@ -118,6 +119,8 @@ class ResNet20(LightningModule):
         x, y = batch
         y_hat = self(x)
         train_loss = self.loss_function(y_hat, y)
+        if self.hparams.bugged_loss:
+            train_loss *= 0.5
         self.train_acc(y_hat, y)
         self.log("loss/train", train_loss)
         self.log("acc/train", self.train_acc, on_step=False, on_epoch=True)

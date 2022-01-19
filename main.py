@@ -27,12 +27,13 @@ def train(args):
 
     trainer = pl.Trainer(
         max_epochs=args.epochs,
-        gpus=1,
         deterministic=True,
         callbacks=[
             LearningRateMonitor(logging_interval="epoch"),
             utils.PeriodicCheckpoint(every_n_epochs=10),
         ],
+        devices="auto",
+        accelerator="auto",
     )
 
     trainer.fit(model, data_module)
@@ -94,6 +95,7 @@ if __name__ == "__main__":
     train_parser.add_argument(
         "-d", "--dataset", choices=["fmnist", "cifar100"], required=True
     )
+    train_parser.add_argument("--bugged-loss", action="store_true")
 
     args = parser.parse_args()
     main(args)
