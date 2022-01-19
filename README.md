@@ -7,3 +7,9 @@ Useful links:
 
 Report Overleaf
 - https://www.overleaf.com/1164171963hqqrmhhdmtkj
+
+Example reports:
+- https://openreview.net/forum?id=8JHrucviUf
+- https://openreview.net/forum?id=Vqtf4kZg2j
+- https://openreview.net/forum?id=lE0wqKGROKa
+- https://arxiv.org/abs/2105.03287
