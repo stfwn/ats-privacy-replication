@@ -45,6 +45,7 @@ def search(args):
         model=args.model,
         data=args.dataset,
         epochs=args.epochs,
+        model_checkpoint=args.model_checkpoint,
         num_transform=args.num_transform,
         num_per_gpu=args.num_per_gpu,
         num_images=args.num_images,
@@ -80,6 +81,7 @@ if __name__ == "__main__":
     search_parser.add_argument("-g", "--num_per_gpu", type=int, default=20)
     search_parser.add_argument("-e", "--epochs", type=int, default=100)
     search_parser.add_argument("-t", "--num_transform", type=int, default=3)
+    search_parser.add_argument("--model_checkpoint", type=str, required=True)
     search_parser.add_argument(
         "--num_images", default=1, type=int, help="Number of images."
     )

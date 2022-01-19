@@ -21,6 +21,7 @@ def parallel_policy_search(
     model: str,
     data: str,
     epochs: int,
+    model_checkpoint: str,
     num_transform: int = 3,
     num_per_gpu: int = 20,
     num_images: int = 1,
@@ -34,13 +35,15 @@ def parallel_policy_search(
     schemes = create_schemes(num_schemes, num_transform)
     Parallel(n_jobs=num_gpu * num_per_gpu, require="sharedmem")(
         delayed(search_transform_attack)(
-            scheme, model, data, epochs, num_images, gpu_queue
+            scheme, model, data, epochs, model_checkpoint, num_images, gpu_queue
         )
         for scheme in schemes
     )
 
 
-def search_transform_attack(scheme, model, data, epochs, num_images, gpu_queue):
+def search_transform_attack(
+    scheme, model, data, epochs, model_checkpoint, num_images, gpu_queue
+):
     gpu = gpu_queue.get()
     try:
         scheme_str = "-".join(map(str, scheme))
@@ -52,6 +55,7 @@ def search_transform_attack(scheme, model, data, epochs, num_images, gpu_queue):
                 data=data,
                 epochs=epochs,
                 num_images=num_images,
+                model_checkpoint=model_checkpoint,
             )
         )
         if torch.cuda.is_available():

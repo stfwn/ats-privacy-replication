@@ -1,3 +1,4 @@
+import json
 import os
 import torch
 import numpy as np
@@ -120,7 +121,7 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader, setup, opt):
 
     interval_distance = cal_dis(noise_input, ground_truth, metric='L1') / bin_num
 
-    return area_ratio(dw_list, interval_distance, bin_num)
+    return area_ratio(dw_list, interval_distance, bin_num), dw_list
 
 
 def area_ratio(y_list, inter, bin_num):
@@ -143,43 +144,47 @@ def main(opt):
     model = create_model(opt)
     model.to(**setup)
     old_state_dict = copy.deepcopy(model.state_dict())
-    model.load_state_dict(torch.load('checkpoints/tiny_data_{}_arch_{}/{}.pth'.format(opt.data, opt.arch, opt.epochs), map_location=setup["device"]))
+    model.load_state_dict(torch.load(opt.model_checkpoint, map_location=setup["device"]))
 
     model.eval()
 
     # at this step model should be loaded from checkpoint and set to eval
-    metric_list = list()
+    metric_list = []
+    gradsims = []
     start = time.time()
     # sample indices of the data???
     sample_list = [200 + i * 5 for i in range(100)]
 
     #  for each sample(?) get metrics from reconstruction
     for attack_id, idx in enumerate(sample_list):
-        metric = reconstruct(idx, model, loss_fn, trainloader, validloader, setup, opt)
+        metric, dw_list = reconstruct(idx, model, loss_fn, trainloader, validloader, setup, opt)
         metric_list.append(metric)
+        gradsims.append(dw_list)
         print('attach {}th in {}, metric {}'.format(attack_id, opt.aug_list, metric))
 
-    pathname = 'search/data_{}_arch_{}/{}'.format(opt.data, opt.arch, opt.aug_list)
+    pathname = 'logs/{}-{}/augmentations/{}.json'.format(opt.data, opt.arch, opt.aug_list)
     root_dir = os.path.dirname(pathname)
     if not os.path.exists(root_dir):
         os.makedirs(root_dir)
+    results = {}
+
+    results["grad_sim"] = gradsims
     if len(metric_list) > 0:
         print("Mean of metric list:", np.mean(metric_list))
-        np.save(pathname, metric_list)
+        results["S_pri"] = list(metric_list)
 
     # maybe need old_state_dict
     model.load_state_dict(old_state_dict)
     score_list = list()
     for run in range(10):
         large_samle_list = [200 + run * 100 + i for i in range(100)]
-        score = accuracy_metric(large_samle_list, model, loss_fn, trainloader, validloader, setup, opt)
+        score = accuracy_metric(large_samle_list, model, loss_fn, trainloader, validloader, setup)
         score_list.append(score)
 
     print('time cost ', time.time() - start)
 
-    pathname = 'accuracy/data_{}_arch_{}/{}'.format(opt.data, opt.arch, opt.aug_list)
-    root_dir = os.path.dirname(pathname)
-    if not os.path.exists(root_dir):
-        os.makedirs(root_dir)
-    np.save(pathname, score_list)
+    results["accuracy"] = score_list
     print(score_list)
+
+    with open(pathname, "w") as f:
+        json.dump(results, f)
