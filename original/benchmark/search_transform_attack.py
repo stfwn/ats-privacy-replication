@@ -1,17 +1,13 @@
-import os, sys
-from math import inf
-
+import os
 import torch
-import random
 import numpy as np
-import original.inversefed as inversefed
-import argparse
 import torch.nn.functional as F
-from original.benchmark.comm import create_model, preprocess
 import copy
 import time
 
-sys.path.insert(0, './')
+from math import inf
+from original.benchmark.comm import create_model, preprocess
+from original import inversefed
 
 
 def eval_score(jacob):
@@ -61,7 +57,7 @@ def cal_dis(a, b, metric='L2'):
         raise NotImplementedError
 
 
-def prepare_data(idx_list, loader, max_num=inf):
+def prepare_data(idx_list, loader, setup, max_num=inf):
     '''
     Function used for getting images and labels from dataset
     '''
@@ -78,19 +74,19 @@ def prepare_data(idx_list, loader, max_num=inf):
     return ground_truth, labels
 
 
-def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader):
+def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader, setup):
     '''
     Implementation of 4.3 part of the paper.
     '''
 
-    ground_truth, labels = prepare_data(idx_list, validloader)
+    ground_truth, labels = prepare_data(idx_list, validloader, setup)
     model.zero_grad()
     jacobs, labels = get_batch_jacobian(model, ground_truth, labels)
     jacobs = jacobs.reshape(jacobs.size(0), -1).cpu().numpy()
     return eval_score(jacobs)
 
 
-def reconstruct(idx, model, loss_fn, trainloader, validloader):
+def reconstruct(idx, model, loss_fn, trainloader, validloader, setup, opt):
     '''
     Implementation of part 4.2 of the paper
     '''
@@ -98,12 +94,12 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
         dm = torch.as_tensor(inversefed.consts.cifar10_mean, **setup)[:, None, None]
         ds = torch.as_tensor(inversefed.consts.cifar10_std, **setup)[:, None, None]
     elif opt.data == 'FashionMinist':
-        dm = torch.Tensor([0.1307]).view(1, 1, 1).cuda()
-        ds = torch.Tensor([0.3081]).view(1, 1, 1).cuda()
+        dm = torch.Tensor([0.1307]).view(1, 1, 1).to(setup['device'])
+        ds = torch.Tensor([0.3081]).view(1, 1, 1).to(setup['device'])
     else:
         raise NotImplementedError
 
-    ground_truth, labels = prepare_data(list(range(idx, len(validloader))), validloader, num_images)
+    ground_truth, labels = prepare_data(list(range(idx, idx+len(validloader))), validloader, setup, opt.num_images)
     model.zero_grad()
 
     # calcuate ori dW
@@ -114,15 +110,12 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader):
     model.eval()
     dw_list = list()
     bin_num = 20
-    noise_input = (torch.rand((ground_truth.shape)).cuda() - dm) / ds
+    noise_input = (torch.rand((ground_truth.shape)).to(setup['device']) - dm) / ds
     for dis_iter in range(bin_num + 1):
         model.zero_grad()
-        fake_ground_truth = (1.0 / bin_num * dis_iter * ground_truth + 1. / bin_num * (
-                bin_num - dis_iter) * noise_input).detach()
+        fake_ground_truth = (1.0 / bin_num * dis_iter * ground_truth + 1. / bin_num * (bin_num - dis_iter) * noise_input).detach()
         fake_dw = calculate_dw(model, fake_ground_truth, labels, loss_fn)
-        dw_loss = sum([cal_dis(dw_a, dw_b, metric='cos') for dw_a, dw_b in zip(fake_dw, input_gradient)]) / len(
-            input_gradient)
-
+        dw_loss = sum([cal_dis(dw_a, dw_b, metric='cos') for dw_a, dw_b in zip(fake_dw, input_gradient)]) / len(input_gradient)
         dw_list.append(dw_loss)
 
     interval_distance = cal_dis(noise_input, ground_truth, metric='L1') / bin_num
@@ -140,12 +133,18 @@ def area_ratio(y_list, inter, bin_num):
     return area / max_area
 
 
-def main():
+def main(opt):
+    # init env
+    setup = inversefed.utils.system_startup()
+    defs = inversefed.training_strategy('conservative')
+    defs.epochs = opt.epochs
+
     loss_fn, trainloader, validloader = preprocess(opt, defs, valid=True)
     model = create_model(opt)
     model.to(**setup)
     old_state_dict = copy.deepcopy(model.state_dict())
-    model.load_state_dict(torch.load('checkpoints/tiny_data_{}_arch_{}/{}.pth'.format(opt.data, opt.arch, opt.epochs)))
+    model.load_state_dict(torch.load('checkpoints/tiny_data_{}_arch_{}/{}.pth'.format(opt.data, opt.arch, opt.epochs), map_location=setup["device"]))
+
     model.eval()
 
     # at this step model should be loaded from checkpoint and set to eval
@@ -156,7 +155,7 @@ def main():
 
     #  for each sample(?) get metrics from reconstruction
     for attack_id, idx in enumerate(sample_list):
-        metric = reconstruct(idx, model, loss_fn, trainloader, validloader)
+        metric = reconstruct(idx, model, loss_fn, trainloader, validloader, setup, opt)
         metric_list.append(metric)
         print('attach {}th in {}, metric {}'.format(attack_id, opt.aug_list, metric))
 
@@ -173,7 +172,7 @@ def main():
     score_list = list()
     for run in range(10):
         large_samle_list = [200 + run * 100 + i for i in range(100)]
-        score = accuracy_metric(large_samle_list, model, loss_fn, trainloader, validloader)
+        score = accuracy_metric(large_samle_list, model, loss_fn, trainloader, validloader, setup, opt)
         score_list.append(score)
 
     print('time cost ', time.time() - start)
@@ -184,34 +183,3 @@ def main():
         os.makedirs(root_dir)
     np.save(pathname, score_list)
     print(score_list)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Reconstruct some image from a trained model.')
-    parser.add_argument('--mode', default=None, required=True, type=str, help='Mode.')
-    parser.add_argument('--aug_list', default=None, required=True, type=str, help='Vision model.')
-    parser.add_argument('--rlabel', default=False, type=bool, help='rlabel')
-    parser.add_argument('--arch', default=None, required=True, type=str, help='Vision model.')
-    parser.add_argument('--data', default=None, required=True, type=str, help='Vision dataset.')
-    parser.add_argument('--epochs', default=None, required=True, type=int, help='Vision epoch.')
-    opt = parser.parse_args()
-
-    # setup
-    seed = 23333
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    random.seed(seed)
-
-    # init env
-    setup = inversefed.utils.system_startup()
-    defs = inversefed.training_strategy('conservative')
-    defs.epochs = opt.epochs
-
-    # init training
-    arch = opt.arch
-    trained_model = True
-    mode = opt.mode
-    assert mode in ['normal', 'aug', 'crop']
-    num_images = 1
-
-    main()

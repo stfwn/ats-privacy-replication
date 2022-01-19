@@ -1,16 +1,17 @@
-from argparse import ArgumentParser
-
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
-
 import models
 import data_modules
 import utils
 
+from argparse import ArgumentParser
+from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
+from policy_search import parallel_policy_search
+
+
 pl.seed_everything(42, workers=True)
 
 
-def main(args):
+def train(args):
     data_module = {
         "fmnist": data_modules.FashionMNISTDataModule,
         "cifar100": data_modules.CIFAR100DataModule,
@@ -37,14 +38,62 @@ def main(args):
     trainer.fit(model, data_module)
 
 
+def search(args):
+    parallel_policy_search(
+        num_schemes=args.num_schemes,
+        model=args.model,
+        data=args.dataset,
+        epochs=args.epochs,
+        num_transform=args.num_transform,
+        num_per_gpu=args.num_per_gpu,
+        num_images=args.num_images,
+    )
+
+
+def main(args):
+    if args.command == "train":
+        train(args)
+    if args.command == "search":
+        search(args)
+    else:
+        raise ValueError
+
+
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("-b", "--batch_size", default=128)
-    parser.add_argument("--data-dir", default="./data")
-    parser.add_argument("-e", "--epochs", type=int, default=200)
-    parser.add_argument("-m", "--model", required=True, choices=["resnet20"])
-    parser.add_argument(
+    commands = parser.add_subparsers(
+        title="command", help="Action to execute", dest="command"
+    )
+
+    # Policy search arguments
+    search_parser = commands.add_parser(
+        "search", help="Automatic transformation search"
+    )
+    search_parser.add_argument(
+        "-m", "--model", choices=["ResNet20-4"], required=True
+    )
+    search_parser.add_argument(
         "-d", "--dataset", choices=["fmnist", "cifar100"], required=True
     )
+    search_parser.add_argument("-n", "--num_schemes", type=int, default=1600)
+    search_parser.add_argument("-g", "--num_per_gpu", type=int, default=20)
+    search_parser.add_argument("-e", "--epochs", type=int, default=100)
+    search_parser.add_argument("-t", "--num_transform", type=int, default=3)
+    search_parser.add_argument(
+        "--num_images", default=1, type=int, help="Number of images."
+    )
+
+    # Model training arguments
+    train_parser = commands.add_parser("train", help="Model training")
+    train_parser.add_argument("-b", "--batch_size", default=128)
+    train_parser.add_argument("--data-dir", default="./data")
+    train_parser.add_argument("-e", "--epochs", type=int, default=200)
+    train_parser.add_argument(
+        "-m", "--model", required=True, choices=["resnet20"]
+    )
+    train_parser.add_argument(
+        "-d", "--dataset", choices=["fmnist", "cifar100"], required=True
+    )
+
     args = parser.parse_args()
     main(args)
