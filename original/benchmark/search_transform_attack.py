@@ -135,6 +135,11 @@ def area_ratio(y_list, inter, bin_num):
 
 
 def main(opt):
+    pathname = 'logs/{}-{}/augmentations/{}.json'.format(opt.data, opt.arch, opt.aug_list)
+    if os.path.exists(pathname):
+        print(f"Results for {opt.aug_list} already exists, skipping")
+        return
+
     # init env
     setup = inversefed.utils.system_startup()
     defs = inversefed.training_strategy('conservative')
@@ -162,7 +167,6 @@ def main(opt):
         gradsims.append(dw_list)
         print('attach {}th in {}, metric {}'.format(attack_id, opt.aug_list, metric))
 
-    pathname = 'logs/{}-{}/augmentations/{}.json'.format(opt.data, opt.arch, opt.aug_list)
     root_dir = os.path.dirname(pathname)
     if not os.path.exists(root_dir):
         os.makedirs(root_dir)
