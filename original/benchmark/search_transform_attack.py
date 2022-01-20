@@ -135,6 +135,7 @@ def area_ratio(y_list, inter, bin_num):
 
 
 def main(opt):
+    print(f"Testing policy '{opt.aug_list}'...")
     pathname = 'logs/{}-{}/augmentations/{}.json'.format(opt.data, opt.arch, opt.aug_list)
     if os.path.exists(pathname):
         print(f"Results for {opt.aug_list} already exists, skipping")
