@@ -1,22 +1,28 @@
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, Union, List
 from torch.utils.data import DataLoader
-
 from pytorch_lightning import LightningDataModule
 from torchvision import datasets, transforms
+
+from original.benchmark.comm import construct_policy
 
 
 class DataModule(LightningDataModule):
     def __init__(
         self,
-        data_dir="data",
-        num_workers=8,
-        batch_size=128,
-        pin_memory=True,
+        data_dir: str = "data",
+        policy_list: List[List[int]] = None,
+        num_workers: int = 8,
+        batch_size: int = 128,
+        pin_memory: bool = True,
         *args,
         **kwargs,
     ):
+        if policy_list is None:
+            policy_list = [[]]
+
         super().__init__(*args, **kwargs)
         self.data_dir = data_dir
+        self.policy_list = policy_list
         self.num_workers = num_workers
         self.batch_size = batch_size
         self.pin_memory = pin_memory
@@ -26,26 +32,32 @@ class DataModule(LightningDataModule):
         self.dataset_class(self.data_dir, train=False, download=True)
 
     def setup(self, stage):
+        # Transforms in the 'aug' mode
+        if any(p for p in self.policy_list):
+            data_transform = [
+                transforms.RandomCrop(32, padding=4),
+                transforms.RandomHorizontalFlip(),
+                construct_policy(self.policy_list),
+            ]
+        # Default transforms in the 'normal' mode.
+        data_transform.extend(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize(self.mean, self.std),
+            ]
+        )
+        data_transform = transforms.Compose(data_transform)
+
         # No train/val split used in original paper
         self.train = self.dataset_class(
             self.data_dir,
             train=True,
-            transform=transforms.Compose(
-                [
-                    transforms.ToTensor(),
-                    transforms.Normalize(self.mean, self.std),
-                ]
-            ),  # Default transforms in the 'normal' mode.
+            transform=data_transform,
         )
         self.test = self.dataset_class(
             self.data_dir,
             train=False,
-            transform=transforms.Compose(
-                [
-                    transforms.ToTensor(),
-                    transforms.Normalize(self.mean, self.std),
-                ]
-            ),  # Default transforms in the 'normal' mode.
+            transform=data_transform,
         )
 
     def train_dataloader(self):

@@ -16,13 +16,16 @@ def train(args):
         "fmnist": data_modules.FashionMNISTDataModule,
         "cifar100": data_modules.CIFAR100DataModule,
     }[args.dataset](
-        data_dir=args.data_dir, num_workers=12, batch_size=args.batch_size
+        data_dir=args.data_dir,
+        policy_list=args.aug_list,
+        num_workers=12,
+        batch_size=args.batch_size,
     )
 
     model = {"resnet20": models.ResNet20}[args.model](
         num_channels=data_module.num_channels,
         num_classes=data_module.num_classes,
-        **vars(args)  # pass all args just to log them
+        **vars(args),  # pass all args just to log them
     )
 
     trainer = pl.Trainer(
@@ -34,6 +37,7 @@ def train(args):
         ],
         devices="auto",
         accelerator="auto",
+        default_root_dir=f"logs/{args.dataset}-{args.model}/training/",
     )
 
     trainer.fit(model, data_module)
@@ -59,6 +63,13 @@ def main(args):
         search(args)
     else:
         raise ValueError
+
+
+def split_augmentations(aug_list: str) -> list:
+    aug_list = aug_list.split("+")
+    aug_list = [l.split("-") for l in aug_list]
+    aug_list = [[int(i) for i in l if i] for l in aug_list]
+    return aug_list
 
 
 if __name__ == "__main__":
@@ -96,6 +107,9 @@ if __name__ == "__main__":
     )
     train_parser.add_argument(
         "-d", "--dataset", choices=["fmnist", "cifar100"], required=True
+    )
+    train_parser.add_argument(
+        "--aug_list", default="", type=split_augmentations
     )
     train_parser.add_argument("--bugged-loss", action="store_true")
 
