@@ -10,10 +10,11 @@ sys.path.insert(0, "./original/")
 from original.benchmark.search_transform_attack import (
     main as search_transform_main,
 )
+from original.policy import policies
 
 
 EMPTY_TRANSFORMATION = -1
-NUM_TRANSFORMATIONS = 50
+NUM_TRANSFORMATIONS = len(policies)
 
 
 def parallel_policy_search(
@@ -77,4 +78,4 @@ def create_schemes(num_schemes: int, num_transform: int = 3):
 
 
 def random_transformation():
-    return random.randint(EMPTY_TRANSFORMATION, NUM_TRANSFORMATIONS)
+    return random.randint(EMPTY_TRANSFORMATION, NUM_TRANSFORMATIONS - 1)
