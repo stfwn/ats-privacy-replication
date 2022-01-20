@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, "./original/")
+
 import pytorch_lightning as pl
 import models
 import data_modules
