@@ -5,34 +5,38 @@ import numpy as np
 import torch.nn.functional as F
 import copy
 import time
-
 from math import inf
+
 from original.benchmark.comm import create_model, preprocess
 from original import inversefed
 
 
-def eval_score(jacob):
-    corrs = np.corrcoef(jacob)
-    v, _ = np.linalg.eig(corrs)
-    k = 1e-5
-    return -np.sum(np.log(v + k) + 1. / (v + k))
-
-
-def get_batch_jacobian(net, x, target):
-    '''
+def get_batch_jacobian(model, x, target):
+    """
     Returns gradient of net prediction on x and detached target
-    '''
-    net.eval()
-    net.zero_grad()
+    :param model: model that is being evaluated
+    :param x: input image for evaluation
+    :param target: target label
+    """
+    model.eval()
+    model.zero_grad()
     x.requires_grad_(True)
     # this is prediction
-    y = net(x)
+    y = model(x)
     y.backward(torch.ones_like(y))
     jacob = x.grad.detach()
     return jacob, target.detach()
 
 
-def calculate_dw(model, inputs, labels, loss_fn):
+def calculate_gradient(model, inputs, labels, loss_fn):
+    """
+    Calculates gradient of model prediction on input.
+    :param model: model that predicts
+    :param inputs: inputs to be classified
+    :param labels: labels of inputs
+    :param loss_fn: loss function
+    :returns: gradient
+    """
     model.zero_grad()
     target_loss, _, _ = loss_fn(model(inputs), labels)
     dw = torch.autograd.grad(target_loss, model.parameters())
@@ -40,13 +44,13 @@ def calculate_dw(model, inputs, labels, loss_fn):
 
 
 def cal_dis(a, b, metric='L2'):
-    '''
+    """
     This function calls the metric with flattened a and b.
     Metric should be given as a  string:
     'L2' - L2 norm
     'L1' - L1 norm
     'cos' - cosine similarity
-    '''
+    """
     a, b = a.flatten(), b.flatten()
     if metric == 'L2':
         return torch.mean((a - b) * (a - b)).item()
@@ -59,38 +63,56 @@ def cal_dis(a, b, metric='L2'):
 
 
 def prepare_data(idx_list, loader, setup, max_num=inf):
-    '''
+    """
     Function used for getting images and labels from dataset
-    '''
-    ground_truth, labels = [], []
+    :param idx_list: list of data indices that should be prepared
+    :param loader: data loader
+    :param setup: setup object created by inversefed.utils.system_startup function
+    :param max_num: max number of items in the prepared data
+    :returns: prepared images, prepared labels
+    """
+    images, labels = [], []
     for idx in idx_list:
         img, label = loader.dataset[idx]
         if label not in labels:
             labels.append(torch.as_tensor((label,), device=setup['device']))
-            ground_truth.append(img.to(**setup))
+            images.append(img.to(**setup))
         if len(labels) >= max_num:
             break
-    ground_truth = torch.stack(ground_truth)
+    images = torch.stack(images)
     labels = torch.cat(labels)
-    return ground_truth, labels
+    return images, labels
 
 
-def accuracy_metric(idx_list, model, loss_fn, trainloader, validloader, setup):
-    '''
-    Implementation of 4.3 part of the paper.
-    '''
-
-    ground_truth, labels = prepare_data(idx_list, validloader, setup)
+def accuracy_score_metric(idx_list, model, validloader, setup, k=1e-5):
+    """
+    Implementation of 4.3 part of the paper. Calculated the accuracy score metric.
+    :param idx_list: list of data indices that should be prepared
+    :param model: model for evaluation
+    :param validloader: data loader
+    :param setup: setup object created by inversefed.utils.system_startup function
+    :param k: parameter epsilon for numerical stability from equation (10)
+    :returns: accuracy score of given model and augmentations
+    """
+    # get the data
+    images, labels = prepare_data(idx_list, validloader, setup)
     model.zero_grad()
-    jacobs, labels = get_batch_jacobian(model, ground_truth, labels)
+    # calculate the Gradient Jacobian matrix, equation (8)
+    jacobs, labels = get_batch_jacobian(model, images, labels)
     jacobs = jacobs.reshape(jacobs.size(0), -1).cpu().numpy()
-    return eval_score(jacobs)
+    # compute correlation matrix - equation (9)
+    correlation_matrix = np.corrcoef(jacobs)
+    # get eigenvalues of sum of jacobians
+    eigenvalues, _ = np.linalg.eig(correlation_matrix)
+    # calculate accuracy score - equation (10)
+    # why here is minus?? how does it influence filtering by threshold
+    return -np.sum(np.log(eigenvalues + k) + 1. / (eigenvalues + k))
 
 
 def reconstruct(idx, model, loss_fn, trainloader, validloader, setup, opt):
-    '''
+    """
     Implementation of part 4.2 of the paper
-    '''
+    """
     if opt.data == 'cifar100':
         dm = torch.as_tensor(inversefed.consts.cifar10_mean, **setup)[:, None, None]
         ds = torch.as_tensor(inversefed.consts.cifar10_std, **setup)[:, None, None]
@@ -100,26 +122,29 @@ def reconstruct(idx, model, loss_fn, trainloader, validloader, setup, opt):
     else:
         raise NotImplementedError
 
-    ground_truth, labels = prepare_data(list(range(idx, idx+len(validloader))), validloader, setup, opt.num_images)
+    images, labels = prepare_data(list(range(idx, idx + len(validloader))), validloader, setup, opt.num_images)
     model.zero_grad()
 
-    # calcuate ori dW
-    target_loss, _, _ = loss_fn(model(ground_truth), labels)
-    input_gradient = torch.autograd.grad(target_loss, model.parameters())
+    # calcuate original dW (gradient)
+    original_loss, _, _ = loss_fn(model(images), labels)
+    input_gradient = torch.autograd.grad(original_loss, model.parameters())
 
     # attack model
     model.eval()
-    dw_list = list()
+    dw_list = []
     bin_num = 20
-    noise_input = (torch.rand((ground_truth.shape)).to(setup['device']) - dm) / ds
+    noise_input = (torch.rand((images.shape)).to(setup['device']) - dm) / ds
     for dis_iter in range(bin_num + 1):
         model.zero_grad()
-        fake_ground_truth = (1.0 / bin_num * dis_iter * ground_truth + 1. / bin_num * (bin_num - dis_iter) * noise_input).detach()
-        fake_dw = calculate_dw(model, fake_ground_truth, labels, loss_fn)
-        dw_loss = sum([cal_dis(dw_a, dw_b, metric='cos') for dw_a, dw_b in zip(fake_dw, input_gradient)]) / len(input_gradient)
+        reconstructed_image = (1.0 / bin_num * dis_iter * images + 1. / bin_num * (
+                bin_num - dis_iter) * noise_input).detach()
+        reconstructed_image_gradient = calculate_gradient(model, reconstructed_image, labels, loss_fn)
+        dw_loss = sum([cal_dis(dw_a, dw_b, metric='cos') for dw_a, dw_b in
+                       zip(reconstructed_image_gradient, input_gradient)]) / len(
+            input_gradient)
         dw_list.append(dw_loss)
 
-    interval_distance = cal_dis(noise_input, ground_truth, metric='L1') / bin_num
+    interval_distance = cal_dis(noise_input, images, metric='L1') / bin_num
 
     return area_ratio(dw_list, interval_distance, bin_num), dw_list
 
@@ -183,7 +208,7 @@ def main(opt):
     score_list = list()
     for run in range(10):
         large_samle_list = [200 + run * 100 + i for i in range(100)]
-        score = accuracy_metric(large_samle_list, model, loss_fn, trainloader, validloader, setup)
+        score = accuracy_score_metric(large_samle_list, model, validloader, setup)
         score_list.append(score)
 
     print('time cost ', time.time() - start)
