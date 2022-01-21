@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 
 
-def find_best(data_name: str, arch_name: str, thresh_acc: int = -85, n: int = 10):
+def find_best(dataset_name: str, model_name: str, thresh_acc: int = -85, n: int = 10):
     """
     Finds list of best augmentation sets. It's paper section 4.4. Also saves that list
     :params data_name: name of the dataset. e.g. cifar100
@@ -14,7 +14,7 @@ def find_best(data_name: str, arch_name: str, thresh_acc: int = -85, n: int = 10
     :returns: List of best policies sets, sorted by S_pri.
     """
 
-    log_dir = Path('logs/{}-{}/augmentations'.format(data_name, arch_name))
+    log_dir = Path('logs/{}-{}/augmentations'.format(dataset_name, model_name))
 
     results = []
     for aug_results_path in log_dir.iterdir():
