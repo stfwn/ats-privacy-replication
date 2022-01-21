@@ -24,20 +24,23 @@ def find_best(dataset_name: str, model_name: str, thresh_acc: int = -85, n: int 
             search_mean = np.mean(loaded_results['S_pri'])
             accuracy_score_mean = np.mean(loaded_results['accuracy'])
             results.append((aug_results_path, search_mean, accuracy_score_mean))
+    num_all = len(results)
+    print(f"Starting sorting the result by search mean...")
     # sort the results by the search mean
     results.sort(key=lambda x: x[1])
     # sort by accuracy score mean
-    print(f"Starting the accuracy score filtering, threshold is: {thresh_acc}")
+    print(f"Starting the accuracy score filtering, threshold is: {thresh_acc}...")
     for idx, result in enumerate(results):
         if result[2] < thresh_acc:
             results.pop(idx)
+    # this might give info if this is even efective
+    print(f"{num_all-len(results)} policy sets were below threshold")
     results = results[:n]
     best_path = log_dir.parent / "best_results_search.json"
     best_results = {}
     for idx, result in enumerate(results):
         best_results[idx] = {"auglist": result[0].name[:-5], "search_mean": result[1],
                              "accuracy_score_mean": result[2]}
-
     print(f"Best results: {best_results}")
     with open(best_path, 'wa') as f:
         json.dump(best_results, f)
