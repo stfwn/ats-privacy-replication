@@ -30,11 +30,9 @@ def find_best(dataset_name: str, model_name: str, thresh_acc: int = -85, n: int 
     results.sort(key=lambda x: x[1])
     # sort by accuracy score mean
     print(f"Starting the accuracy score filtering, threshold is: {thresh_acc}...")
-    for idx, result in enumerate(results):
-        if result[2] < thresh_acc:
-            results.pop(idx)
+    results = [result for result in results if result[2] >= thresh_acc]
     # this might give info if this is even efective
-    print(f"{num_all-len(results)} policy sets were below threshold")
+    print(f"{num_all - len(results)} policy sets were below threshold")
     results = results[:n]
     best_path = log_dir.parent / "best_results_search.json"
     best_results = {}
