@@ -32,13 +32,16 @@ class DataModule(LightningDataModule):
         self.dataset_class(self.data_dir, train=False, download=True)
 
     def setup(self, stage):
+        data_transform = []
         # Transforms in the 'aug' mode
         if any(p for p in self.policy_list):
-            data_transform = [
-                transforms.RandomCrop(32, padding=4),
-                transforms.RandomHorizontalFlip(),
-                construct_policy(self.policy_list),
-            ]
+            data_transform.extend(
+                [
+                    transforms.RandomCrop(32, padding=4),
+                    transforms.RandomHorizontalFlip(),
+                    construct_policy(self.policy_list),
+                ]
+            )
         # Default transforms in the 'normal' mode.
         data_transform.extend(
             [
