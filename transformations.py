@@ -1,5 +1,5 @@
 from __future__ import annotations
-from functools import cached_property
+from typing import Optional
 import random
 
 from pytorch_lightning import LightningModule, LightningDataModule
@@ -26,7 +26,7 @@ class TransformationLibrary:
                 transformations.append(t)
         return Policy(transformations)
 
-    def random_transformation(self):
+    def random_transformation(self) -> Optional[Transformation]:
         i = random.randint(EMPTY_TRANSFORMATION, len(self.transformations))
         if i != EMPTY_TRANSFORMATION:
             return self.transformations[i]
@@ -84,19 +84,27 @@ class Policy:
     def __init__(self, transformations: list[Transformation]):
         self.transformations = transformations
 
-    def compute_s_acc(self, model: LightningModule, dataloader: DataLoader):
+    def compute_s_acc(
+        self, model: LightningModule, dataloader: DataLoader
+    ) -> float:
         # TODO
         raise NotImplementedError
         # Apply self.transformations per batch in loop over dataloader
         self.s_acc: float = ...
         return self.s_acc
 
-    def compute_s_pri(self, model: LightningModule, dataloader: DataLoader):
+    def compute_s_pri(
+        self, model: LightningModule, dataloader: DataLoader
+    ) -> float:
         # TODO
         raise NotImplementedError
         # Apply self.transformations per batch in loop over dataloader
         self.s_pri: float = ...
         return self.s_pri
+
+    @property
+    def n_transformations(self):
+        return len(self.transformations)
 
 
 class Transformation:
