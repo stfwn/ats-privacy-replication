@@ -1,20 +1,31 @@
+# Stdlib
+from argparse import ArgumentParser
 import sys
+
+# Third party
+from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
+import pytorch_lightning as pl
 
 from original.searchalg.search_best import find_best
 
 sys.path.insert(0, "./original/")
 
-import pytorch_lightning as pl
-import models
+# First party
 import data_modules
+import models
+from policy_search import parallel_policy_search
 import utils
 
-from argparse import ArgumentParser
-from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
-from policy_search import parallel_policy_search
-
-
 pl.seed_everything(42, workers=True)
+
+
+def main(args):
+    if args.command == "train":
+        train(args)
+    if args.command == "search":
+        search(args)
+    else:
+        raise ValueError
 
 
 def train(args):
@@ -28,7 +39,9 @@ def train(args):
         batch_size=args.batch_size,
     )
 
-    model = {"resnet20": models.ResNet20}[args.model](
+    model = {"resnet20": models.ResNet20, "convnet": models.ConvNet}[
+        args.model
+    ](
         num_channels=data_module.num_channels,
         num_classes=data_module.num_classes,
         **vars(args),  # pass all args just to log them
@@ -60,23 +73,12 @@ def search(args):
         num_per_gpu=args.num_per_gpu,
         num_images=args.num_images,
     )
-    find_best(dataset_name=args.dataset, model_name=args.model, thresh_acc=args.thresh_acc, n=args.n)
-
-
-def main(args):
-    if args.command == "train":
-        train(args)
-    if args.command == "search":
-        search(args)
-    else:
-        raise ValueError
-
-
-def split_augmentations(aug_list: str) -> list:
-    aug_list = aug_list.split("+")
-    aug_list = [l.split("-") for l in aug_list]
-    aug_list = [[int(i) for i in l if i] for l in aug_list]
-    return aug_list
+    find_best(
+        dataset_name=args.dataset,
+        model_name=args.model,
+        thresh_acc=args.thresh_acc,
+        n=args.n,
+    )
 
 
 if __name__ == "__main__":
@@ -103,9 +105,20 @@ if __name__ == "__main__":
     search_parser.add_argument(
         "--num_images", default=1, type=int, help="Number of images."
     )
-    parser.add_argument('--thresh-acc', default=-85, required=False, type=int, help='Accuracy Score Threshold')
-    parser.add_argument('--n', default=10, required=False, type=int, help='Maximum number of policies')
-
+    parser.add_argument(
+        "--thresh-acc",
+        default=-85,
+        required=False,
+        type=int,
+        help="Accuracy Score Threshold",
+    )
+    parser.add_argument(
+        "--n",
+        default=10,
+        required=False,
+        type=int,
+        help="Maximum number of policies",
+    )
 
     # Model training arguments
     train_parser = commands.add_parser("train", help="Model training")
@@ -113,13 +126,13 @@ if __name__ == "__main__":
     train_parser.add_argument("--data-dir", default="./data")
     train_parser.add_argument("-e", "--epochs", type=int, default=200)
     train_parser.add_argument(
-        "-m", "--model", required=True, choices=["resnet20"]
+        "-m", "--model", required=True, choices=["convnet", "resnet20"]
     )
     train_parser.add_argument(
-        "-d", "--dataset", choices=["fmnist", "cifar100"], required=True
+        "-d", "--dataset", choices=["cifar100", "fmnist"], required=True
     )
     train_parser.add_argument(
-        "--aug_list", default="", type=split_augmentations
+        "--aug_list", default="", type=utils.split_augmentations
     )
     train_parser.add_argument("--bugged-loss", action="store_true")
 
