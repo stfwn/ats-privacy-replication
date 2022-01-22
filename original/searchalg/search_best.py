@@ -40,7 +40,7 @@ def find_best(dataset_name: str, model_name: str, thresh_acc: int = -85, n: int 
         best_results[idx] = {"auglist": result[0].name[:-5], "search_mean": result[1],
                              "accuracy_score_mean": result[2]}
     print(f"Best results: {best_results}")
-    with open(best_path, 'wa') as f:
+    with open(best_path, 'w') as f:
         json.dump(best_results, f)
     return best_results
 
