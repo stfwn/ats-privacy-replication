@@ -72,6 +72,7 @@ def search(args):
         num_transform=args.num_transform,
         num_per_gpu=args.num_per_gpu,
         num_images=args.num_images,
+        schemes=args.aug_list,
     )
     find_best(
         dataset_name=args.dataset,
@@ -105,19 +106,22 @@ if __name__ == "__main__":
     search_parser.add_argument(
         "--num_images", default=1, type=int, help="Number of images."
     )
-    parser.add_argument(
+    search_parser.add_argument(
         "--thresh-acc",
         default=-85,
         required=False,
         type=int,
         help="Accuracy Score Threshold",
     )
-    parser.add_argument(
+    search_parser.add_argument(
         "--n",
         default=10,
         required=False,
         type=int,
         help="Maximum number of policies",
+    )
+    search_parser.add_argument(
+        "--aug_list", default=None, type=utils.split_augmentations
     )
 
     # Model training arguments

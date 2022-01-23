@@ -26,6 +26,7 @@ def parallel_policy_search(
     num_transform: int = 3,
     num_per_gpu: int = 20,
     num_images: int = 1,
+    schemes: list = None,
 ):
     gpu_queue = Queue()
     num_gpu = max(torch.cuda.device_count(), 1)
@@ -33,7 +34,8 @@ def parallel_policy_search(
         for _ in range(num_per_gpu):
             gpu_queue.put(gpu_ids)
 
-    schemes = create_schemes(num_schemes, num_transform)
+    if schemes is None:
+        schemes = create_schemes(num_schemes, num_transform)
     Parallel(n_jobs=num_gpu * num_per_gpu, require="sharedmem")(
         delayed(search_transform_attack)(
             scheme, model, data, epochs, model_checkpoint, num_images, gpu_queue
