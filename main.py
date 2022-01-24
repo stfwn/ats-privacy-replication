@@ -25,6 +25,7 @@ def main(args):
     if args.command == "search":
         search(args)
     else:
+        print(args.command)
         raise ValueError
 
 
@@ -56,7 +57,7 @@ def train(args):
         ],
         devices="auto",
         accelerator="auto",
-        default_root_dir=f"logs/{args.dataset}-{args.model}/training/",
+        default_root_dir=f"logs/{args.dataset}-{args.model}/training/{args.aug_list}/",
     )
 
     trainer.fit(model, data_module)
