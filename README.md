@@ -1,5 +1,8 @@
 # Replication study of "Privacy-preserving Collaborative Learning with Automatic Transformation Search"
 
+[![DOI](https://zenodo.org/badge/445183551.svg)](https://zenodo.org/badge/latestdoi/445183551)
+
+
 This is the code behind a replication study of [Privacy-preserving
 Collaborative Learning with Automatic Transformation
 Search](https://arxiv.org/abs/2011.12505). The code for the original
